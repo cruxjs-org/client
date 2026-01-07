@@ -1,0 +1,23 @@
+{
+	"type"              : "lib",
+	"template"          : "clean",
+	"pm"                : "bun",
+	"repo": {
+		"org"           : "cruxjs",
+		"name"          : "client",
+		"version"       : "0.0.1",
+		"desc"          : "Pure management layer for client-side applications. Routing, lifecycle, events, and viewport management without dictating your architecture.",
+		"kw"            : ["cruxjs", "client"],
+		"license"       : "MIT",
+		"issues"        : "https://github.com/cruxjs-org/client/issues",
+		"homepage"      : "https://github.com/cruxjs-org/client#readme",
+		"git_url"       : "git+https://github.com/cruxjs-org/client.git"
+	},
+	"author": {
+		"id"            : "maysara-elshewehy",
+		"name"          : "Maysara",
+		"email"         : "maysara.elshewehy@gmail.com",
+		"url"           : "https://github.com/maysara-elshewehy"
+	},
+	"createdAt"         : "2026-01-06T12:45:01.412Z"
+}
