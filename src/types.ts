@@ -6,7 +6,7 @@
 // ╔════════════════════════════════════════ PACK ════════════════════════════════════════╗
 
     import { I18nConfig } from '@minejs/i18n';
-import type { JSXElement } from '@minejsx/render';
+import type { JSXElement } from '@minejs/jsx';
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
 

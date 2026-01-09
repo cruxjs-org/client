@@ -60,6 +60,9 @@
                     this.currentPathSignal.set(to.path);
                 });
 
+                // Make clientManager globally available
+                (globalThis as any).__CLIENT_MANAGER__ = this;
+
                 this.log('[INIT] ClientManager created');
             }
 
@@ -373,7 +376,7 @@
             /**
              * Get translation string
              */
-            getTranslation(key: string, defaultValue?: string) {
+            t(key: string, defaultValue?: string) {
                 const i18n = getI18n();
                 if (!i18n) {
                     console.warn('[ClientManager] i18n not initialized. Using default value or key.');
@@ -423,22 +426,22 @@
      * Helper to safely get translation
      * Use this in components to access translations
      */
-    export function useTranslation() {
-        const i18n = getI18n();
-        return {
-            getTranslation: (key: string, defaultValue?: string) => {
-                if (!i18n) {
-                    return defaultValue ?? key;
-                }
-                return i18n.t(key) ?? defaultValue ?? key;
-            },
-            t: (key: string, defaultValue?: string) => {
-                if (!i18n) {
-                    return defaultValue ?? key;
-                }
-                return i18n.t(key) ?? defaultValue ?? key;
-            }
-        };
+    export function t(key: string, defaultValue?: string) {
+        const clientManager = getGlobalClientManager();
+        if (!clientManager) {
+            console.warn('[ClientManager] Not initialized. Using default value or key.');
+            return defaultValue ?? key;
+        }
+        return clientManager.t(key, defaultValue);
     }
+
+    /**
+     * Get global ClientManager instance if available
+     */
+    export function getGlobalClientManager(): ClientManager | undefined {
+        return (globalThis as any).__CLIENT_MANAGER__ as ClientManager | undefined;
+    }
+
+
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝

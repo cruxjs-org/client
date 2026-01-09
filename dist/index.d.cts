@@ -3,7 +3,7 @@ import { I18nConfig } from '@minejs/i18n';
 import * as _minejs_browser from '@minejs/browser';
 import { Router, EventsManager, WindowManager } from '@minejs/browser';
 import * as _minejs_signals from '@minejs/signals';
-import { JSXElement } from '@minejsx/render';
+import { JSXElement } from '@minejs/jsx';
 
 type RouteComponent = () => JSXElement | null;
 interface ClientManagerConfig {
@@ -117,7 +117,7 @@ declare class ClientManager {
     /**
      * Get translation string
      */
-    getTranslation(key: string, defaultValue?: string): string;
+    t(key: string, defaultValue?: string): string;
     /**
      * Get lifecycle phase
      */
@@ -135,9 +135,10 @@ declare class ClientManager {
  * Helper to safely get translation
  * Use this in components to access translations
  */
-declare function useTranslation(): {
-    getTranslation: (key: string, defaultValue?: string) => string;
-    t: (key: string, defaultValue?: string) => string;
-};
+declare function t(key: string, defaultValue?: string): string;
+/**
+ * Get global ClientManager instance if available
+ */
+declare function getGlobalClientManager(): ClientManager | undefined;
 
-export { ClientManager, useTranslation };
+export { ClientManager, getGlobalClientManager, t };
