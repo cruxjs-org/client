@@ -1,3 +1,5 @@
+import * as _minejs_i18n from '@minejs/i18n';
+import { I18nConfig } from '@minejs/i18n';
 import * as _minejs_browser from '@minejs/browser';
 import { Router, EventsManager, WindowManager } from '@minejs/browser';
 import * as _minejs_signals from '@minejs/signals';
@@ -8,6 +10,7 @@ interface ClientManagerConfig {
     routes: Record<string, RouteComponent>;
     notFoundComponent?: RouteComponent;
     debug?: boolean;
+    i18n?: I18nConfig;
 }
 interface ClientManagerHooks {
     onBoot?: () => void | Promise<void>;
@@ -47,6 +50,30 @@ declare class ClientManager {
      */
     destroy(): Promise<void>;
     /**
+     * Initializes internationalization (i18n) support
+     *
+     * Loads language files and configures the i18n system based on:
+     * - Default language
+     * - Supported languages
+     * - Base path for translation files
+     * - File extension (json, cjson, etc.)
+     *
+     * @param {AppConfig} config - Application configuration with i18n settings
+     * @param {Logger} logger - Logger instance for logging setup progress
+     * @returns {Promise<void>}
+     * @throws {Error} If i18n setup or language file loading fails
+     *
+     * @example
+     * await setupI18n({
+     *   i18n: {
+     *     defaultLanguage: 'en',
+     *     supportedLanguages: ['en', 'ar'],
+     *     basePath: './src/i18n'
+     *   }
+     * }, logger);
+     */
+    setupI18n(config: I18nConfig): Promise<void>;
+    /**
      * Navigate to path
      */
     navigate(path: string): void;
@@ -84,6 +111,14 @@ declare class ClientManager {
      */
     getWindowManager(): WindowManager;
     /**
+     * Get i18n instance for translations
+     */
+    getI18n(): _minejs_i18n.I18nManager;
+    /**
+     * Get translation string
+     */
+    getTranslation(key: string, defaultValue?: string): string;
+    /**
      * Get lifecycle phase
      */
     getPhase(): "booting" | "ready" | "destroying" | "destroyed";
@@ -96,5 +131,13 @@ declare class ClientManager {
      */
     private log;
 }
+/**
+ * Helper to safely get translation
+ * Use this in components to access translations
+ */
+declare function useTranslation(): {
+    getTranslation: (key: string, defaultValue?: string) => string;
+    t: (key: string, defaultValue?: string) => string;
+};
 
-export { ClientManager };
+export { ClientManager, useTranslation };

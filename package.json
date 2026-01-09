@@ -1,6 +1,6 @@
 {
 	"name"                             : "@cruxjs/client",
-	"version"                          : "0.0.2",
+	"version"                          : "0.0.3",
 	"description"                      : "Pure management layer for client-side applications. Routing, lifecycle, events, and viewport management without dictating your architecture.",
 	"keywords"                         : ["cruxjs", "client"],
 	"license"                          : "MIT",
@@ -41,6 +41,7 @@
 	},
 	"dependencies": {
 		"@minejs/browser"              : "^0.0.4",
+		"@minejs/i18n"                 : "^0.0.4",
 		"@minejs/signals"              : "^0.0.6",
 		"@minejsx/render"              : "^0.0.3"
 	},

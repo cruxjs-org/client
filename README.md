@@ -8,7 +8,7 @@
 </div>
 
 <div align="center">
-    <img src="https://img.shields.io/badge/v-0.0.2-black"/>
+    <img src="https://img.shields.io/badge/v-0.0.3-black"/>
     <img src="https://img.shields.io/badge/🔥-@cruxjs-black"/>
     <br>
     <img src="https://img.shields.io/badge/coverage----%25-brightgreen" alt="Test Coverage" />
@@ -71,6 +71,40 @@
             await app.ready('#app');
 
             // App is live and routing is reactive
+            ```
+
+        - ### 1.5 With Internationalization (i18n)
+
+            > Setup multi-language support with translations:
+
+            ```typescript
+            import { ClientManager } from '@cruxjs/client';
+
+            const HomePage = () => <div>Welcome Home</div>;
+            const NotFoundPage = () => <div>404 - Not Found</div>;
+
+            // Create manager with i18n config
+            const app = new ClientManager({
+                routes: {
+                    '/': HomePage
+                },
+                notFoundComponent: NotFoundPage,
+                i18n: {
+                    defaultLanguage: 'en',
+                    supportedLanguages: ['en', 'ar'],
+                    // TODO: short it
+                    basePath: 'http://localhost:3000/static/dist/i18n'  // Path to translation files
+                },
+                debug: true
+            });
+
+            // Boot and ready
+            await app.boot();
+            await app.ready('#app');
+
+            // Now use translations in components or hooks
+            const { t } = app.getI18n();
+            console.log(t('welcome')); // Gets translation key
             ```
 
         - ### 2. With Lifecycle Hooks
@@ -389,6 +423,51 @@
         if (app.isReady()) {
             // Safe to use all features
         }
+        ```
+
+    ### Internationalization (i18n)
+
+    - #### `getI18n(): I18nInstance`
+        > Access the i18n instance for translations
+        > - Returns `undefined` if i18n not initialized
+        > - Call after `boot()` if i18n config provided
+
+        ```typescript
+        const i18n = app.getI18n();
+        if (i18n) {
+            const greeting = i18n.t('greeting');
+            console.log(greeting);
+        }
+        ```
+
+    - #### `getTranslation(key: string, defaultValue?: string): string`
+        > Safely get a translation with fallback
+        > - Returns default value if key not found
+        > - Returns key if i18n not initialized
+        > - Safe to call anytime
+
+        ```typescript
+        // In lifecycle hook or component
+        const message = app.getTranslation('welcome', 'Welcome!');
+        console.log(message); // 'Welcome!' if not found in i18n
+        ```
+
+    ### i18n Utilities
+
+    - #### `useTranslation(): { t: (key: string, defaultValue?: string) => string }`
+        > Composable hook to use translations in components
+        > - Safe even if i18n not initialized
+        > - Returns both `t()` and `getTranslation()` methods
+
+        ```typescript
+        import { useTranslation } from '@cruxjs/client';
+
+        // In your components
+        const { t } = useTranslation();
+
+        const HomePage = () => {
+            return <div>{t('home.title', 'Welcome')}</div>;
+        };
         ```
 
 <!-- ╚═════════════════════════════════════════════════════════════════╝ -->

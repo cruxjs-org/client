@@ -7,6 +7,7 @@
 // ╔════════════════════════════════════════ PACK ════════════════════════════════════════╗
 
     import { signal, effect } from '@minejs/signals';
+    import { I18nConfig, setupAuto, getI18n } from '@minejs/i18n';
     import { EventsManager, Router, WindowManager, createRouter } from '@minejs/browser';
     import * as types from './types';
 
@@ -117,6 +118,10 @@
                 this.log('⚡ Phase: BOOT');
 
                 try {
+                    // Setup i18n
+                    if (this.config.i18n)
+                    await this.setupI18n(this.config.i18n!);
+
                     // Call user onBoot hook
                     if (this.hooks.onBoot) {
                         this.log('→ Calling onBoot hook');
@@ -203,6 +208,47 @@
 
 
         // ┌──────────────────────────────── ──── ──────────────────────────────┐
+
+            /**
+             * Initializes internationalization (i18n) support
+             *
+             * Loads language files and configures the i18n system based on:
+             * - Default language
+             * - Supported languages
+             * - Base path for translation files
+             * - File extension (json, cjson, etc.)
+             *
+             * @param {AppConfig} config - Application configuration with i18n settings
+             * @param {Logger} logger - Logger instance for logging setup progress
+             * @returns {Promise<void>}
+             * @throws {Error} If i18n setup or language file loading fails
+             *
+             * @example
+             * await setupI18n({
+             *   i18n: {
+             *     defaultLanguage: 'en',
+             *     supportedLanguages: ['en', 'ar'],
+             *     basePath: './src/i18n'
+             *   }
+             * }, logger);
+             */
+             async setupI18n(config: I18nConfig) {
+                this.log('Setting up i18n...');
+
+                try {
+                    await setupAuto({
+                        defaultLanguage: config.defaultLanguage,
+                        supportedLanguages: config.supportedLanguages,
+                        basePath: config.basePath!,
+                        fileExtension: config.fileExtension || 'json'
+                    });
+
+                    this.log(`i18n ready → ${config.supportedLanguages!.join(', ')}`);
+                } catch (err) {
+                    this.log('Failed to setup i18n' + (err as Error).message);
+                    throw err;
+                }
+            }
 
             /**
              * Navigate to path
@@ -318,6 +364,30 @@
         // ┌──────────────────────────────── ──── ──────────────────────────────┐
 
             /**
+             * Get i18n instance for translations
+             */
+            getI18n() {
+                return getI18n();
+            }
+
+            /**
+             * Get translation string
+             */
+            getTranslation(key: string, defaultValue?: string) {
+                const i18n = getI18n();
+                if (!i18n) {
+                    console.warn('[ClientManager] i18n not initialized. Using default value or key.');
+                    return defaultValue ?? key;
+                }
+                return i18n.t(key) ?? defaultValue ?? key;
+            }
+
+        // └────────────────────────────────────────────────────────────────────┘
+
+
+        // ┌──────────────────────────────── ──── ──────────────────────────────┐
+
+            /**
              * Get lifecycle phase
              */
             getPhase() {
@@ -342,6 +412,33 @@
 
         // └────────────────────────────────────────────────────────────────────┘
 
+    }
+
+// ╚══════════════════════════════════════════════════════════════════════════════════════╝
+
+
+// ╔════════════════════════════════════════ UTILS ═════════════════════════════════════════╗
+
+    /**
+     * Helper to safely get translation
+     * Use this in components to access translations
+     */
+    export function useTranslation() {
+        const i18n = getI18n();
+        return {
+            getTranslation: (key: string, defaultValue?: string) => {
+                if (!i18n) {
+                    return defaultValue ?? key;
+                }
+                return i18n.t(key) ?? defaultValue ?? key;
+            },
+            t: (key: string, defaultValue?: string) => {
+                if (!i18n) {
+                    return defaultValue ?? key;
+                }
+                return i18n.t(key) ?? defaultValue ?? key;
+            }
+        };
     }
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
