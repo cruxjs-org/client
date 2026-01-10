@@ -5,8 +5,8 @@
 	"repo": {
 		"org"           : "cruxjs",
 		"name"          : "client",
-		"version"       : "0.0.4",
-		"desc"          : "Pure management layer for client-side applications. Routing, lifecycle, events, and viewport management without dictating your architecture.",
+		"version"       : "0.0.5",
+		"desc"          : "Client application manager with routing, lifecycle hooks, and plugin-based extensibility.",
 		"kw"            : ["cruxjs", "client"],
 		"license"       : "MIT",
 		"issues"        : "https://github.com/cruxjs-org/client/issues",

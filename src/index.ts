@@ -4,18 +4,22 @@
 // Made with ❤️ by Maysara.
 
 
+
 // ╔════════════════════════════════════════ PACK ════════════════════════════════════════╗
 
-    import { signal, effect } from '@minejs/signals';
-    import { I18nConfig, setupAuto, getI18n } from '@minejs/i18n';
+    import * as types               from './types';
+    import { signal,    effect  }   from '@minejs/signals';
+    import { setupI18n, getI18n }   from '@minejs/i18n';
+    import { mount as mountJSX  }   from '@minejs/jsx';
     import { EventsManager, Router, WindowManager, createRouter } from '@minejs/browser';
-    import * as types from './types';
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
 
 
 
 // ╔════════════════════════════════════════ CORE ════════════════════════════════════════╗
+
+    let globalClientManagerInstance: ClientManager | undefined;
 
     export class ClientManager {
 
@@ -27,6 +31,7 @@
             private lifecycle           : 'booting' | 'ready' | 'destroying' | 'destroyed' = 'booting';
             private config              : types.ClientManagerConfig;
             private hooks               : types.ClientManagerHooks = {};
+            private plugins             : types.ClientPlugin[] = [];
             private debug               : boolean;
             private routeComponents     : Record<string, types.RouteComponent> = {};
             private currentPathSignal   = signal<string>(window.location.pathname ?? '/');
@@ -36,6 +41,14 @@
                 this.debug = config.debug ?? false;
 
                 this.log('[INIT] Creating ClientManager');
+
+                // Merge lifecycle hooks from config
+                if (config.lifecycle) {
+                    this.hooks = { ...config.lifecycle };
+                }
+
+                // Store plugins from config
+                this.plugins = config.plugins ?? [];
 
                 // Store route components provided by user
                 this.routeComponents = config.routes;
@@ -60,8 +73,9 @@
                     this.currentPathSignal.set(to.path);
                 });
 
-                // Make clientManager globally available
-                (globalThis as any).__CLIENT_MANAGER__ = this;
+                // Store clientManager instance
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
+                globalClientManagerInstance = this;
 
                 this.log('[INIT] ClientManager created');
             }
@@ -121,9 +135,16 @@
                 this.log('⚡ Phase: BOOT');
 
                 try {
-                    // Setup i18n
-                    if (this.config.i18n)
-                    await this.setupI18n(this.config.i18n!);
+                    // Call plugins onBoot hooks
+                    for (const plugin of this.plugins) {
+                        if (plugin.onBoot) {
+                            this.log(`→ Plugin onBoot: ${plugin.name}`);
+                            await plugin.onBoot({
+                                debug: this.debug,
+                                config: this.config
+                            });
+                        }
+                    }
 
                     // Call user onBoot hook
                     if (this.hooks.onBoot) {
@@ -141,8 +162,10 @@
             /**
              * Ready the app - Phase 2: READY
              * Mount to DOM and make everything live
+             *
+             * Root selector is always 'body'.
              */
-            async ready(mountSelector: string | HTMLElement): Promise<void> {
+            async ready(): Promise<void> {
                 if (this.lifecycle !== 'booting') {
                     console.warn('[ClientManager] Cannot ready - not in booting phase');
                     return;
@@ -151,14 +174,25 @@
                 this.log('⚡ Phase: READY');
 
                 try {
+                    const selector = 'body';
+
+                    // Set body id to 'root' for mounting
+                    (document.querySelector(selector) as HTMLElement).id = 'root';
+
                     // Mount router
-                    this.mount(mountSelector);
+                    this.mount(selector);
+
                     this.log('→ Router mounted');
 
-                    // Setup global access for debugging
-                    if (this.debug) {
-                        (globalThis as any).__CLIENT_MANAGER__ = this;
-                        this.log('→ ClientManager available globally');
+                    // Call plugins onReady hooks
+                    for (const plugin of this.plugins) {
+                        if (plugin.onReady) {
+                            this.log(`→ Plugin onReady: ${plugin.name}`);
+                            await plugin.onReady({
+                                debug: this.debug,
+                                config: this.config
+                            });
+                        }
                     }
 
                     // Call user onReady hook
@@ -189,6 +223,18 @@
                 this.log('⚡ Phase: DESTROY');
 
                 try {
+                    // Call plugins onDestroy hooks (in reverse order)
+                    for (let i = this.plugins.length - 1; i >= 0; i--) {
+                        const plugin = this.plugins[i];
+                        if (plugin.onDestroy) {
+                            this.log(`→ Plugin onDestroy: ${plugin.name}`);
+                            await plugin.onDestroy({
+                                debug: this.debug,
+                                config: this.config
+                            });
+                        }
+                    }
+
                     // Call user onDestroy hook
                     if (this.hooks.onDestroy) {
                         this.log('→ Calling onDestroy hook');
@@ -213,47 +259,6 @@
         // ┌──────────────────────────────── ──── ──────────────────────────────┐
 
             /**
-             * Initializes internationalization (i18n) support
-             *
-             * Loads language files and configures the i18n system based on:
-             * - Default language
-             * - Supported languages
-             * - Base path for translation files
-             * - File extension (json, cjson, etc.)
-             *
-             * @param {AppConfig} config - Application configuration with i18n settings
-             * @param {Logger} logger - Logger instance for logging setup progress
-             * @returns {Promise<void>}
-             * @throws {Error} If i18n setup or language file loading fails
-             *
-             * @example
-             * await setupI18n({
-             *   i18n: {
-             *     defaultLanguage: 'en',
-             *     supportedLanguages: ['en', 'ar'],
-             *     basePath: './src/i18n'
-             *   }
-             * }, logger);
-             */
-             async setupI18n(config: I18nConfig) {
-                this.log('Setting up i18n...');
-
-                try {
-                    await setupAuto({
-                        defaultLanguage: config.defaultLanguage,
-                        supportedLanguages: config.supportedLanguages,
-                        basePath: config.basePath!,
-                        fileExtension: config.fileExtension || 'json'
-                    });
-
-                    this.log(`i18n ready → ${config.supportedLanguages!.join(', ')}`);
-                } catch (err) {
-                    this.log('Failed to setup i18n' + (err as Error).message);
-                    throw err;
-                }
-            }
-
-            /**
              * Navigate to path
              */
             navigate(path: string): void {
@@ -266,7 +271,7 @@
              */
             mount(selector: string | HTMLElement): void {
                 const container = typeof selector === 'string'
-                    ? document.querySelector(selector)
+                    ? (document.querySelector(selector) as HTMLElement)
                     : selector;
 
                 if (!container) {
@@ -281,13 +286,19 @@
                         || this.config.notFoundComponent
                         || null;
 
-                    // Clear and mount new component
+                    // Clear container
                     container.innerHTML = '';
 
                     if (Component) {
-                        const node = Component();
-                        if (node instanceof Node) {
-                            container.appendChild(node);
+                        try {
+                            const jsx = Component();
+                            // Use @minejs/jsx mount function to properly render JSX
+                            if (jsx) {
+                                mountJSX(jsx, container);
+                            }
+                        } catch (err) {
+                            console.error('[ClientManager] Error rendering component:', currentPath, err);
+                            container.innerHTML = '<p>Error loading component</p>';
                         }
                     } else {
                         container.innerHTML = '<p>No component found for this route</p>';
@@ -296,6 +307,8 @@
                     this.log(`→ Route changed to: ${currentPath}`);
                 });
 
+                // Trigger initial render by pushing the current path
+                this.router.push(this.currentPathSignal());
                 this.log('→ Routing setup complete');
             }
 
@@ -420,28 +433,54 @@
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
 
 
-// ╔════════════════════════════════════════ UTILS ═════════════════════════════════════════╗
+
+// ╔════════════════════════════════════════ ════ ════════════════════════════════════════╗
 
     /**
-     * Helper to safely get translation
-     * Use this in components to access translations
-     */
-    export function t(key: string, defaultValue?: string) {
-        const clientManager = getGlobalClientManager();
-        if (!clientManager) {
-            console.warn('[ClientManager] Not initialized. Using default value or key.');
-            return defaultValue ?? key;
-        }
-        return clientManager.t(key, defaultValue);
-    }
-
-    /**
-     * Get global ClientManager instance if available
+     * Get ClientManager instance if available
      */
     export function getGlobalClientManager(): ClientManager | undefined {
-        return (globalThis as any).__CLIENT_MANAGER__ as ClientManager | undefined;
+        return globalClientManagerInstance;
     }
 
+    export async function start(config: types.ClientManagerConfig): Promise<ClientManager> {
+        // Read i18n config from HTML meta tag (injected by server)
+        const metaI18n = document.querySelector('meta[name="app-i18n"]');
+        if (metaI18n) {
+            const i18nData = JSON.parse(metaI18n.getAttribute('content') || '{}');
+            config.i18n = i18nData;
+        }
 
+        // Create ClientManager instance
+        const manager = new ClientManager(config);
+
+        // Phase 0: I18N Setup
+        await setupI18n(config.i18n || {
+            defaultLanguage: 'en',
+            supportedLanguages: ['en'],
+        });
+
+        // Phase 1: BOOT
+        manager.boot();
+
+        // Phase 2: READY
+        manager.ready();
+
+        // Handle cleanup on page unload
+        window.addEventListener('beforeunload', async () => {
+            await manager.destroy();
+        });
+
+        return manager;
+    }
+
+// ╚══════════════════════════════════════════════════════════════════════════════════════╝
+
+
+
+// ╔════════════════════════════════════════ ════ ════════════════════════════════════════╗
+
+    export * from './types';
+    export { t } from '@minejs/i18n';
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝

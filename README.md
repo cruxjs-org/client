@@ -3,15 +3,15 @@
 <br>
 <div align="center">
     <p>
-        <img src="./assets/img/logo.png" alt="logo" style="" height="80" />
+        <img src="./assets/img/logo.png" alt="logo" style="" height="60" />
     </p>
 </div>
 
 <div align="center">
-    <img src="https://img.shields.io/badge/v-0.0.4-black"/>
-    <img src="https://img.shields.io/badge/🔥-@cruxjs-black"/>
+    <img src="https://img.shields.io/badge/v-0.0.1-black"/>
+    <a href="https://img.shields.io/github/stars/cruxjs-org"><img src="https://img.shields.io/badge/🔥-@cruxjs-black"/></a>
     <br>
-    <img src="https://img.shields.io/badge/coverage----%25-brightgreen" alt="Test Coverage" />
+    <img src="https://img.shields.io/badge/coverage-98.70%25-brightgreen" alt="Test Coverage" />
     <img src="https://img.shields.io/github/issues/cruxjs-org/client?style=flat" alt="Github Repo Issues" />
     <img src="https://img.shields.io/github/stars/cruxjs-org/client?style=social" alt="GitHub Repo stars" />
 </div>
@@ -23,451 +23,829 @@
 
 <!-- ╔══════════════════════════════ DOC ══════════════════════════════╗ -->
 
+- ## Overview 👀
+
+    - #### Why ?
+        > To provide a powerful, declarative client-side application manager with built-in routing, lifecycle management, event handling, and plugin architecture for modern SPAs.
+
+    - #### When ?
+        > When you need a structured, production-ready client application with:
+        > - Automatic routing and navigation
+        > - Component lifecycle management
+        > - Event handling utilities
+        > - Plugin-based extensibility
+        > - i18n integration
+        > - Reactive state management
+
+        > When you use [@cruxjs/app](https://github.com/cruxjs-org/app).
+
+    <br>
+    <br>
+
 - ## Quick Start 🔥
 
-    > **_Pure management layer for client-side applications. Routing, lifecycle, events, and viewport management without dictating your architecture._**
+    > install [`hmm`](https://github.com/minejs-org/hmm) first.
 
-    - ### Setup
+    ```bash
+    # in your terminal
+    hmm i @cruxjs/client
+    ```
 
-        > install [`hmm`](https://github.com/minejs-org/hmm) first.
+    <div align="center"> <img src="./assets/img/line.png" alt="line" style="display: block; margin-top:20px;margin-bottom:20px;width:500px;"/> </div>
 
-        ```bash
-        hmm i @cruxjs/client
+    - #### Setup
+
+        > ***🌟 in: `.\src\app\client.ts`. 🌟***
+
+        > Create your client configuration with routes and lifecycle hooks:
+
+        ```typescript
+        import { ClientManagerConfig, start } from '@cruxjs/client';
+
+        const config: ClientManagerConfig = {
+            debug               : true,
+
+            routes: {
+                '/'             : HomePage,
+                '/about'        : AboutPage,
+                '/products/:id' : ProductDetailPage,
+            },
+
+            notFoundComponent   : NotFoundPage,
+
+            lifecycle: {
+                onBoot          : () => console.log('App booting...'),
+                onReady         : () => console.log('App ready!'),
+                onDestroy       : () => console.log('Cleaning up...'),
+            },
+
+            plugins: [
+                // Add your plugins here
+            ],
+        };
+
+        start(config);
         ```
 
-    <div align="center"> <img src="./assets/img/line.png" alt="line" style="display: block; margin-top:20px;margin-bottom:20px;width:500px;"/> <br> </div>
+        <div align="center"> <img src="./assets/img/line.png" alt="line" style="display: block; margin-top:20px;margin-bottom:20px;width:500px;"/> </div>
+        <br>
 
-    - ### Usage
+    - #### Usage
 
-        ```ts
-        import { ClientManager } from '@cruxjs/client';
-        import type { ClientManagerConfig } from '@cruxjs/client';
+        > Create your page components using `@minejs/jsx`:
+
+        ```tsx
+        import { JSXElement }   from '@minejs/jsx';
+        import { t }            from '@minejs/i18n';
+
+        export function HomePage(): JSXElement {
+            return (
+                <div class="page-container">
+                    <h1>{t('home.title')}</h1>
+                    <p>{t('home.description')}</p>
+                </div>
+            );
+        }
         ```
 
-        - ### 1. Basic Setup
+        <div align="center"> <img src="./assets/img/line.png" alt="line" style="display: block; margin-top:20px;margin-bottom:20px;width:500px;"/> </div>
 
-            > Create your page components:
+        - #### Routing
 
             ```typescript
-            import { ClientManager } from '@cruxjs/client';
+            import { getGlobalClientManager } from '@cruxjs/client';
 
-            // Your components (you build these)
-            const HomePage = () => <div>Welcome Home</div>;
-            const AboutPage = () => <div>About Us</div>;
-            const NotFoundPage = () => <div>404 - Not Found</div>;
+            // Navigate to a route
+            const manager = getGlobalClientManager();
+            manager.navigate('/products/123');
 
-            // Create manager with YOUR routes
-            const app = new ClientManager({
-                routes: {
-                    '/': HomePage,
-                    '/about': AboutPage
-                },
-                notFoundComponent: NotFoundPage,
-                debug: true
-            });
-
-            // Boot and ready
-            await app.boot();
-            await app.ready('#app');
-
-            // App is live and routing is reactive
+            // Create link handlers for <a> tags
+            const handleClick = manager.createLinkHandler('/about');
             ```
 
-        - ### 1.5 With Internationalization (i18n)
-
-            > Setup multi-language support with translations:
-
-            ```typescript
-            import { ClientManager } from '@cruxjs/client';
-
-            const HomePage = () => <div>Welcome Home</div>;
-            const NotFoundPage = () => <div>404 - Not Found</div>;
-
-            // Create manager with i18n config
-            const app = new ClientManager({
-                routes: {
-                    '/': HomePage
-                },
-                notFoundComponent: NotFoundPage,
-                i18n: {
-                    defaultLanguage: 'en',
-                    supportedLanguages: ['en', 'ar'],
-                    // TODO: short it
-                    basePath: 'http://localhost:3000/static/dist/i18n'  // Path to translation files
-                },
-                debug: true
-            });
-
-            // Boot and ready
-            await app.boot();
-            await app.ready('#app');
-
-            // Now use translations in components or hooks
-            const { t } = app.getI18n();
-            console.log(t('welcome')); // Gets translation key
+            ```tsx
+            <a href="/about" onclick={handleClick}>About Us</a>
             ```
 
-        - ### 2. With Lifecycle Hooks
+        - #### Lifecycle Hooks
 
             ```typescript
-            const app = new ClientManager({
-                routes: {
-                    '/': HomePage,
-                    '/about': AboutPage
+            const config: ClientManagerConfig = {
+                routes: { /* ... */ },
+
+                lifecycle: {
+                    // Called during BOOT phase - before any rendering
+                    onBoot: async () => {
+                        console.log('Phase: BOOT');
+                        // Initialize services, load data, etc.
+                    },
+
+                    // Called during READY phase - after mounting
+                    onReady: async () => {
+                        console.log('Phase: READY');
+                        // App is live and mounted to DOM
+                    },
+
+                    // Called during DESTROY phase - on cleanup
+                    onDestroy: async () => {
+                        console.log('Phase: DESTROY');
+                        // Clean up listeners, timers, etc.
+                    },
                 },
-                notFoundComponent: NotFoundPage,
-                debug: true
-            });
-
-            // Setup hooks before booting
-            app.on('onBoot', async () => {
-                console.log('App is booting...');
-                // Load data, initialize services, etc.
-            });
-
-            app.on('onReady', async () => {
-                console.log('App is live!');
-                // Track page views, setup analytics
-            });
-
-            app.on('onDestroy', async () => {
-                console.log('Cleaning up...');
-                // Close connections, cancel requests
-            });
-
-            // Start lifecycle
-            await app.boot();
-            await app.ready('#app');
-
-            // Later, shutdown
-            await app.destroy();
+            };
             ```
 
-        - ### 3. With Event Binding
+        - #### Event Binding
 
             ```typescript
-            const app = new ClientManager({
-                routes: { '/': HomePage },
-                notFoundComponent: NotFoundPage
-            });
+            const manager = getGlobalClientManager();
 
-            // Bind events globally
-            const unsubscribe = app.on(
+            // Bind event with cleanup handler
+            const unbind = manager.on(
                 document,
                 'click',
-                (event) => console.log('Document clicked', event)
+                (e) => console.log('Clicked:', e.target),
+                { capture: false }
             );
 
-            // Or bind to specific elements
-            app.on(
-                document.getElementById('myButton'),
-                'click',
-                () => alert('Button clicked')
-            );
+            // Unbind event
+            unbind();
 
-            // Unsubscribe when needed
-            unsubscribe();
+            // Or unbind manually
+            manager.off(document, 'click', handler);
             ```
 
-        - ### 4. With Navigation
+        - #### Plugin System
 
             ```typescript
-            const app = new ClientManager({
-                routes: {
-                    '/': HomePage,
-                    '/about': AboutPage,
-                    '/contact': ContactPage
+            interface ClientPlugin {
+                name        : string;
+                onBoot?     : (context: PluginContext) => void | Promise<void>;
+                onReady?    : (context: PluginContext) => void | Promise<void>;
+                onDestroy?  : (context: PluginContext) => void | Promise<void>;
+            }
+
+            const analyticsPlugin: ClientPlugin = {
+                name        : 'analytics',
+                onReady     : async (context) => {
+                    console.log('Initialize analytics tracking');
+                    // Send page view event, etc.
                 },
-                notFoundComponent: NotFoundPage
-            });
+            };
 
-            await app.boot();
-            await app.ready('#app');
-
-            // Navigate programmatically
-            app.navigate('/about');
-
-            // Get current path as reactive signal
-            const currentPath = app.getCurrentPath();
-            console.log(currentPath()); // '/about'
-
-            // Create link handlers for anchor tags
-            const handleHomeClick = app.createLinkHandler('/');
+            const config: ClientManagerConfig = {
+                routes      : { /* ... */ },
+                plugins     : [analyticsPlugin],
+            };
             ```
 
-        - ### 5. With Viewport Reactivity
+        - #### i18n Integration
 
             ```typescript
-            const app = new ClientManager({
-                routes: { '/': HomePage },
-                notFoundComponent: NotFoundPage
-            });
+            // i18n is automatically loaded from server meta tag
+            // Access translations anywhere:
 
-            await app.boot();
-            await app.ready('#app');
+            const manager = getGlobalClientManager();
+
+            // Get translation
+            const title = manager.t('home.title');
+
+            // Or import directly from @minejs/i18n
+            import { t, setLanguage } from '@minejs/i18n';
+
+            t('key') // "Translated value"
+
+            // Change language
+            await setLanguage('ar');
+            ```
+
+        - #### Viewport & Window Management
+
+            ```typescript
+            const manager = getGlobalClientManager();
 
             // Get viewport as reactive signal
-            const viewport = app.getViewport();
+            const viewport = manager.getViewport();
 
-            // Subscribe to viewport changes
-            import { effect } from '@minejs/signals';
+            // Manually access window manager
+            const windowManager = manager.getWindowManager();
 
+            // Listen to viewport changes
             effect(() => {
-                const { width, height } = viewport();
-                console.log(`Viewport: ${width}x${height}`);
+                const vp = viewport();
+                console.log('Viewport:', vp.width, vp.height);
             });
+            ```
+
+        - #### Router Access
+
+            ```typescript
+            const manager = getGlobalClientManager();
+
+            // Get underlying router for advanced usage
+            const router = manager.getRouter();
+
+            // Navigate
+            router.push('/about');
+
+            // Listen to route changes
+            router.afterEach((to) => {
+                console.log('Navigated to:', to.path);
+            });
+            ```
+
+        - #### Lifecycle Phases
+
+            ```typescript
+            const manager = getGlobalClientManager();
+
+            // Get current phase: 'booting' | 'ready' | 'destroying' | 'destroyed'
+            const phase = manager.getPhase();
+
+            // Check if ready
+            if (manager.isReady()) {
+                console.log('App is live and mounted');
+            }
             ```
 
     <br>
+    <br>
 
-- ## API Reference 🔥
+- ## Complete Example with @cruxjs/app 📑
 
-    ### Core Class
-
-    - #### `ClientManager`
-        > Main class for orchestrating client-side routing, lifecycle, and events
+    - ### Server Configuration
 
         ```typescript
-        new ClientManager(config: ClientManagerConfig)
-        ```
+        // src/index.ts
+        import { createApp, AppConfig } from '@cruxjs/app';
+        import { serverSPA } from '@cruxjs/spa';
 
-        **Configuration:**
-        ```typescript
-        interface ClientManagerConfig {
-            // Required: Your page components
-            routes: Record<string, RouteComponent>
+        import * as HomePage from './app/ui/pages/home';
+        import * as ErrorPage from './app/ui/pages/error';
 
-            // Optional: 404 fallback component
-            notFoundComponent?: RouteComponent
+        const appConfig: AppConfig = {
+            debug                   : true,
 
-            // Optional: Enable debug logging
-            debug?: boolean
-        }
+            server: {
+                port                : 3000,
+                host                : 'localhost',
+            },
 
-        type RouteComponent = () => JSXElement | null;
-        ```
+            static: {
+                path                : '/static',
+                directory           : './src/shared/static',
+            },
 
-    ### Lifecycle Methods
+            client: {
+                entry               : './src/app/client.ts',
+                output              : './src/shared/static/dist/js',
+                minify              : true,
+            },
 
-    - #### `boot(): Promise<void>`
-        > Phase 1: Bootstrap the application
-        > - Calls `onBoot` hook if defined
-        > - Sets lifecycle to 'booting'
+            i18n: {
+                defaultLanguage     : 'en',
+                supportedLanguages  : ['en', 'ar'],
+                basePath            : './src/shared/static/dist/i18n'
+            },
 
-        ```typescript
-        await app.boot();
-        ```
+            style: {
+                entry               : './src/app/ui/style/index.scss',
+                output              : './src/shared/static/dist/css/min.css',
+            },
 
-    - #### `ready(mountSelector: string | HTMLElement): Promise<void>`
-        > Phase 2: Mount and activate the application
-        > - Mounts router to DOM
-        > - Calls `onReady` hook if defined
-        > - Sets lifecycle to 'ready'
-        > - Enables reactive routing
-
-        ```typescript
-        await app.ready('#app');
-        // or
-        await app.ready(document.getElementById('app'));
-        ```
-
-    - #### `destroy(): Promise<void>`
-        > Phase 3: Shutdown and cleanup
-        > - Calls `onDestroy` hook if defined
-        > - Cleans up managers
-        > - Sets lifecycle to 'destroyed'
-
-        ```typescript
-        await app.destroy();
-        ```
-
-    ### Lifecycle Hooks
-
-    - #### `on(event: 'onBoot' | 'onReady' | 'onDestroy', callback): this`
-        > Register lifecycle hooks
-
-        ```typescript
-        app.on('onBoot', async () => {
-            // Initialize services, load data
-        });
-
-        app.on('onReady', async () => {
-            // Track page views, start animations
-        });
-
-        app.on('onDestroy', async () => {
-            // Cleanup connections
-        });
-        ```
-
-    ### Event Binding
-
-    - #### `on(target, event, handler, options?): () => void`
-        > Bind events to DOM elements with automatic cleanup
-
-        ```typescript
-        const unsubscribe = app.on(
-            document.getElementById('button'),
-            'click',
-            (event) => console.log('Clicked'),
-            { once: true }
-        );
-
-        // Unsubscribe when needed
-        unsubscribe();
-        ```
-
-    - #### `off(target, event, handler): void`
-        > Unbind events
-
-        ```typescript
-        app.off(element, 'click', myHandler);
-        ```
-
-    ### Routing & Navigation
-
-    - #### `navigate(path: string): void`
-        > Navigate to a route
-        > - Updates the router
-        > - Triggers reactive re-render
-        > - Updates current path signal
-
-        ```typescript
-        app.navigate('/about');
-        ```
-
-    - #### `mount(selector: string | HTMLElement): void`
-        > Mount router to DOM element
-        > - Called automatically by `ready()`
-        > - Sets up reactive routing effect
-        > - Handles component rendering
-
-        ```typescript
-        app.mount('#app');
-        ```
-
-    - #### `getCurrentPath(): Signal<string>`
-        > Get current path as reactive signal
-
-        ```typescript
-        const pathSignal = app.getCurrentPath();
-
-        import { effect } from '@minejs/signals';
-        effect(() => {
-            console.log(`Current path: ${pathSignal()}`);
-        });
-        ```
-
-    - #### `createLinkHandler(path: string): (e: MouseEvent) => void`
-        > Create a navigation handler for links
-
-        ```typescript
-        const goHome = app.createLinkHandler('/');
-
-        // Use in template/JSX
-        <a href="/" onClick={goHome}>Home</a>
-        ```
-
-    - #### `getRouter(): Router`
-        > Access the underlying router for advanced usage
-
-        ```typescript
-        const router = app.getRouter();
-        // Use @minejs/browser Router API
-        ```
-
-    ### Manager Access
-
-    - #### `getEventsManager(): EventsManager`
-        > Access the events manager directly
-
-        ```typescript
-        const events = app.getEventsManager();
-        ```
-
-    - #### `getWindowManager(): WindowManager`
-        > Access the window/viewport manager directly
-
-        ```typescript
-        const window = app.getWindowManager();
-        ```
-
-    - #### `getViewport(): Signal<ViewportInfo>`
-        > Get viewport dimensions as reactive signal
-
-        ```typescript
-        const viewport = app.getViewport();
-
-        effect(() => {
-            const { width, height, isMobile } = viewport();
-            console.log(`Size: ${width}x${height}, Mobile: ${isMobile}`);
-        });
-        ```
-
-    ### State Inspection
-
-    - #### `getPhase(): 'booting' | 'ready' | 'destroying' | 'destroyed'`
-        > Get current lifecycle phase
-
-        ```typescript
-        const phase = app.getPhase();
-        if (phase === 'ready') {
-            // App is live
-        }
-        ```
-
-    - #### `isReady(): boolean`
-        > Check if app is in ready phase
-
-        ```typescript
-        if (app.isReady()) {
-            // Safe to use all features
-        }
-        ```
-
-    ### Internationalization (i18n)
-
-    - #### `getI18n(): I18nInstance`
-        > Access the i18n instance for translations
-        > - Returns `undefined` if i18n not initialized
-        > - Call after `boot()` if i18n config provided
-
-        ```typescript
-        const i18n = app.getI18n();
-        if (i18n) {
-            const greeting = i18n.t('greeting');
-            console.log(greeting);
-        }
-        ```
-
-    - #### `getTranslation(key: string, defaultValue?: string): string`
-        > Safely get a translation with fallback
-        > - Returns default value if key not found
-        > - Returns key if i18n not initialized
-        > - Safe to call anytime
-
-        ```typescript
-        // In lifecycle hook or component
-        const message = app.getTranslation('welcome', 'Welcome!');
-        console.log(message); // 'Welcome!' if not found in i18n
-        ```
-
-    ### i18n Utilities
-
-    - #### `useTranslation(): { t: (key: string, defaultValue?: string) => string }`
-        > Composable hook to use translations in components
-        > - Safe even if i18n not initialized
-        > - Returns both `t()` and `getTranslation()` methods
-
-        ```typescript
-        import { useTranslation } from '@cruxjs/client';
-
-        // In your components
-        const { t } = useTranslation();
-
-        const HomePage = () => {
-            return <div>{t('home.title', 'Welcome')}</div>;
+            plugins                 : []
         };
+
+        // Create SPA plugin
+        const spaPlugin = serverSPA({
+            baseUrl                 : 'http://localhost:3000',
+            clientEntry             : './src/app/client.ts',
+            clientScriptPath        : ['/static/dist/js/client.js'],
+            clientStylePath         : ['/static/dist/css/min.css'],
+
+            pages                   : [HomePage.meta],
+            errorPages              : [ErrorPage.meta],
+            autoBootstrapClient     : true
+        }, appConfig);
+
+        appConfig.plugins.push(spaPlugin);
+
+        // Create and boot app
+        const app = createApp(appConfig);
+        app.boot();
+        ```
+
+    - ### Page Components
+
+        ```tsx
+        // src/app/ui/pages/home.tsx
+        import { JSXElement }       from '@minejs/jsx';
+        import { SPAPageConfig }    from '@cruxplug/spa';
+        import { t }                from '@minejs/i18n';
+
+        export function HomePage(): JSXElement {
+            return (
+                <div class="page-container">
+                    <h1>{t('home.title')}</h1>
+                    <p>{t('home.description')}</p>
+                </div>
+            );
+        }
+
+        export const meta: SPAPageConfig = {
+            title: 'Home - My App',
+            path: '/',
+            description: 'Welcome to our application',
+        };
+        ```
+
+        ```tsx
+        // src/app/ui/pages/error.tsx
+        import { JSXElement }       from '@minejs/jsx';
+        import { SPAPageConfig }    from '@cruxplug/spa';
+        import { t }                from '@minejs/i18n';
+
+        export function ErrorPage(): JSXElement {
+            return (
+                <div class="error-container">
+                    <h1>{t('error.title')}</h1>
+                    <p>{t('error.description')}</p>
+                </div>
+            );
+        }
+
+        export const meta: SPAPageConfig = {
+            title: 'Error - My App',
+            path: '/*',
+        };
+        ```
+
+    - ### Client Configuration
+
+        ```typescript
+        // src/app/client.ts
+        import { ClientManagerConfig, start } from '@cruxjs/client';
+
+        import { HomePage } from './ui/pages/home';
+        import { ErrorPage } from './ui/pages/error';
+
+        const config: ClientManagerConfig = {
+            debug               : true,
+
+            routes: {
+                '/'             : HomePage,
+            },
+
+            notFoundComponent   : ErrorPage,
+
+            lifecycle: {
+                onBoot          : () => {
+                    console.log('[App] BOOT phase - Initializing');
+                },
+
+                onReady         : () => {
+                    console.log('[App] READY phase - App is live');
+                },
+
+                onDestroy       : () => {
+                    console.log('[App] DESTROY phase - Cleaning up');
+                },
+            },
+
+            plugins: [
+                {
+                    name        : 'logger',
+
+                    onBoot      : async (context) => {
+                        console.log('Logger plugin initialized');
+                    },
+
+                    onReady     : async (context) => {
+                        console.log('Logger plugin ready');
+                    }
+                },
+            ],
+        };
+
+        start(config);
+        ```
+
+    - ### Translations
+
+        ```json
+        // src/shared/static/dist/i18n/en.json
+        {
+            "home": {
+                "title"         : "Welcome to My App",
+                "description"   : "Build amazing web applications with @cruxjs"
+            },
+            "error": {
+                "title"         : "Page Not Found",
+                "description"   : "The page you're looking for doesn't exist"
+            }
+        }
+        ```
+
+        ```json
+        // src/shared/static/dist/i18n/ar.json
+        {
+            "home": {
+                "title"         : "أهلا وسهلا",
+                "description"   : "قم ببناء تطبيقات ويب رائعة مع @cruxjs"
+            },
+            "error": {
+                "title"         : "الصفحة غير موجودة",
+                "description"   : "الصفحة التي تبحث عنها غير موجودة"
+            }
+        }
+        ```
+
+    <br>
+    <br>
+
+- ## API Reference 📚
+
+    - ### Types
+
+        ```typescript
+        type RouteComponent     = () => JSXElement | null;
+
+        interface ClientPlugin {
+            name                : string;
+            onBoot?             : (context: PluginContext) => void | Promise<void>;
+            onReady?            : (context: PluginContext) => void | Promise<void>;
+            onDestroy?          : (context: PluginContext) => void | Promise<void>;
+        }
+
+        interface PluginContext {
+            debug               : boolean;
+            config              : ClientManagerConfig;
+        }
+
+        interface ClientManagerHooks {
+            onBoot?             : () => void | Promise<void>;
+            onReady?            : () => void | Promise<void>;
+            onDestroy?          : () => void | Promise<void>;
+        }
+
+        interface ClientManagerConfig {
+            routes              : Record<string, RouteComponent>;
+            notFoundComponent?  : RouteComponent;
+            debug?              : boolean;
+            lifecycle?          : ClientManagerHooks;
+            plugins?            : ClientPlugin[];
+            i18n?               : I18nConfig;
+        }
+        ```
+
+        <div align="center"> <img src="./assets/img/line.png" alt="line" style="display: block; margin-top:20px;margin-bottom:20px;width:500px;"/> </div>
+
+    - ### ClientManager Methods
+
+        - #### `boot()`
+
+            > Initialize the application - Phase 1
+            > Calls all plugin `onBoot` hooks
+
+            ```typescript
+            await manager.boot();
+            ```
+
+        - #### `ready()`
+
+            > Mount the application to DOM - Phase 2
+            > Calls all plugin `onReady` hooks
+            > Sets up routing and reactive effects
+
+            ```typescript
+            await manager.ready();
+            ```
+
+        - #### `destroy()`
+
+            > Shutdown the application - Phase 3
+            > Calls all plugin `onDestroy` hooks
+            > Cleans up listeners and timers
+
+            ```typescript
+            await manager.destroy();
+            ```
+
+        - #### `navigate(path)`
+
+            > Navigate to a route
+
+            ```typescript
+            manager.navigate('/about');
+            manager.navigate('/products/123');
+            ```
+
+        - #### `mount(selector)`
+
+            > Mount router to DOM element
+            > Sets up reactive routing and initial render
+
+            ```typescript
+            manager.mount('body');
+            manager.mount(document.getElementById('app'));
+            ```
+
+        - #### `on(event, callback)` - Lifecycle
+
+            > Bind lifecycle hook
+
+            ```typescript
+            manager.on('onBoot', () => {
+                console.log('Booting...');
+            });
+            ```
+
+        - #### `on(target, event, handler, options)` - Event Binding
+
+            > Bind DOM event with auto-cleanup
+
+            ```typescript
+            const unbind = manager.on(
+                document,
+                'click',
+                (e) => console.log(e),
+                { capture: false }
+            );
+
+            unbind(); // Remove listener
+            ```
+
+        - #### `off(target, event, handler)`
+
+            > Unbind DOM event
+
+            ```typescript
+            manager.off(document, 'click', handler);
+            ```
+
+        - #### `getCurrentPath()`
+
+            > Get current route path as reactive signal
+
+            ```typescript
+            const path = manager.getCurrentPath();
+
+            effect(() => {
+                console.log('Current path:', path());
+            });
+            ```
+
+        - #### `createLinkHandler(path)`
+
+            > Create click handler for navigation links
+
+            ```typescript
+            const handleClick = manager.createLinkHandler('/about');
+            ```
+
+            ```tsx
+            <a href="/about" onclick={handleClick}>About</a>
+            ```
+
+        - #### `getRouter()`
+
+            > Get underlying router for advanced usage
+
+            ```typescript
+            const router = manager.getRouter();
+            router.push('/products');
+            router.afterEach((to) => {
+                document.title = to.path;
+            });
+            ```
+
+        - #### `getEventsManager()`
+
+            > Get events manager directly
+
+            ```typescript
+            const events = manager.getEventsManager();
+            ```
+
+        - #### `getWindowManager()`
+
+            > Get window manager for viewport tracking
+
+            ```typescript
+            const windowManager = manager.getWindowManager();
+            ```
+
+        - #### `getViewport()`
+
+            > Get viewport dimensions as reactive signal
+
+            ```typescript
+            const viewport = manager.getViewport();
+
+            effect(() => {
+                const vp = viewport();
+                console.log(`${vp.width}x${vp.height}`);
+            });
+            ```
+
+        - #### `getI18n()`
+
+            > Get i18n instance
+
+            ```typescript
+            const i18n = manager.getI18n();
+            ```
+
+        - #### `t(key, defaultValue?)`
+
+            > Translate a key
+
+            ```typescript
+            const title = manager.t('home.title', 'Default Title');
+            ```
+
+        - #### `getPhase()`
+
+            > Get current lifecycle phase
+
+            ```typescript
+            const phase = manager.getPhase();
+            // 'booting' | 'ready' | 'destroying' | 'destroyed'
+            ```
+
+        - #### `isReady()`
+
+            > Check if app is ready
+
+            ```typescript
+            if (manager.isReady()) {
+                console.log('App is mounted and live');
+            }
+            ```
+
+    - ### Global Functions
+
+        - #### `start(config)`
+
+            > Create and boot ClientManager with config
+            > Automatically reads i18n from HTML meta tag
+            > Calls boot() and ready() phases
+
+            ```typescript
+            const manager = await start({
+                routes              : { '/': HomePage },
+                notFoundComponent   : ErrorPage,
+                lifecycle           : { /* ... */ }
+            });
+            ```
+
+        - #### `getGlobalClientManager()`
+
+            > Get singleton ClientManager instance
+
+            ```typescript
+            const manager = getGlobalClientManager();
+            if (manager?.isReady()) {
+                manager.navigate('/');
+            }
+            ```
+
+    <br>
+    <br>
+
+- ## Lifecycle Flow 🔄
+
+    ```
+    ┌─────────────────────────────────────────────────────────┐
+    │                                                         │
+    │  start(config)                                          │
+    │  ├─ Read i18n from meta tag                             │
+    │  ├─ Create ClientManager                                │
+    │  └─ Call boot()                                         │
+    │                                                         │
+    ├─ BOOT Phase                                             │
+    │  ├─ Run plugin.onBoot()                                 │
+    │  ├─ Run config.lifecycle.onBoot()                       │
+    │  └─ Initialize services                                 │
+    │                                                         │
+    ├─ READY Phase                                            │
+    │  ├─ Mount router to DOM                                 │
+    │  ├─ Setup reactive routing                              │
+    │  ├─ Run plugin.onReady()                                │
+    │  ├─ Run config.lifecycle.onReady()                      │
+    │  └─ Render initial component                            │
+    │                                                         │
+    ├─ ... User navigates between routes ...                  │
+    │                                                         │
+    ├─ beforeunload Event (page leaving)                      │
+    │  └─ Call destroy()                                      │
+    │                                                         │
+    └─ DESTROY Phase                                          │
+       ├─ Run plugin.onDestroy()                              │
+       ├─ Run config.lifecycle.onDestroy()                    │
+       ├─ Cleanup listeners                                   │
+       └─ Set lifecycle to 'destroyed'                        │
+    ```
+
+    <br>
+    <br>
+
+- ## Best Practices ✨
+
+    - #### Configuration
+
+        ```typescript
+        // ✅ DO: Use declarative config
+        const config: ClientManagerConfig = {
+            routes: {
+                '/': HomePage,
+                '/about': AboutPage,
+            },
+            lifecycle: {
+                onBoot: () => { /* ... */ },
+                onReady: () => { /* ... */ },
+            }
+        };
+
+        // ❌ DON'T: Imperative setup
+        const manager = new ClientManager({});
+        manager.boot();
+        manager.ready();
+        ```
+
+    - #### Route Components
+
+        ```typescript
+        // ✅ DO: Return JSX from components
+        export function MyPage(): JSXElement {
+            return (
+                <div>
+                    <h1>{t('page.title')}</h1>
+                </div>
+            );
+        }
+
+        // ❌ DON'T: Return HTML strings
+        export function MyPage(): string {
+            return '<h1>My Page</h1>';
+        }
+        ```
+
+    - #### Event Binding
+
+        ```typescript
+        // ✅ DO: Use event manager with cleanup
+        const unbind = manager.on(button, 'click', handler);
+        // Auto-cleanup on component destroy
+
+        // ❌ DON'T: Direct addEventListener
+        button.addEventListener('click', handler);
+        // Manual cleanup required
+        ```
+
+    - #### Navigation
+
+        ```typescript
+        // ✅ DO: Use manager.navigate()
+        manager.navigate('/products/123');
+
+        // ✅ DO: Use link handler
+        <a href="/about" onclick={manager.createLinkHandler('/about')}>
+
+        // ❌ DON'T: Direct window.location
+        window.location.href = '/about';
+        ```
+
+    - #### Lifecycle Hooks
+
+        ```typescript
+        // ✅ DO: Use for initialization
+        lifecycle: {
+            onBoot: async () => {
+                await loadConfig();
+                await initializeServices();
+            }
+        }
+
+        // ❌ DON'T: Block with heavy work
+        lifecycle: {
+            onBoot: () => {
+                // Very heavy sync operation here
+            }
+        }
+        ```
+
+    - #### Plugin Architecture
+
+        ```typescript
+        // ✅ DO: Extend with plugins
+        const analyticsPlugin: ClientPlugin = {
+            name: 'analytics',
+            onReady: () => { trackPageView(); }
+        };
+
+        // ❌ DON'T: Modify app core
+        manager.customProperty = ...;
         ```
 
 <!-- ╚═════════════════════════════════════════════════════════════════╝ -->
@@ -476,6 +854,7 @@
 
 <!-- ╔══════════════════════════════ END ══════════════════════════════╗ -->
 
+<br>
 <br>
 
 ---

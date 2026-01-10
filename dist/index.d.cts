@@ -1,21 +1,49 @@
 import * as _minejs_i18n from '@minejs/i18n';
 import { I18nConfig } from '@minejs/i18n';
+export { t } from '@minejs/i18n';
 import * as _minejs_browser from '@minejs/browser';
 import { Router, EventsManager, WindowManager } from '@minejs/browser';
 import * as _minejs_signals from '@minejs/signals';
 import { JSXElement } from '@minejs/jsx';
 
 type RouteComponent = () => JSXElement | null;
-interface ClientManagerConfig {
-    routes: Record<string, RouteComponent>;
-    notFoundComponent?: RouteComponent;
-    debug?: boolean;
-    i18n?: I18nConfig;
+/**
+ * Client-side plugin system
+ * Plugins can hook into lifecycle phases to extend functionality
+ * (logging, analytics, error handling, etc.)
+ */
+interface ClientPlugin {
+    name: string;
+    onBoot?: (context: PluginContext) => void | Promise<void>;
+    onReady?: (context: PluginContext) => void | Promise<void>;
+    onDestroy?: (context: PluginContext) => void | Promise<void>;
 }
+/**
+ * Context passed to plugin lifecycle hooks
+ */
+interface PluginContext {
+    debug: boolean;
+    config: ClientManagerConfig;
+}
+/**
+ * Lifecycle hooks for the client application
+ */
 interface ClientManagerHooks {
     onBoot?: () => void | Promise<void>;
     onReady?: () => void | Promise<void>;
     onDestroy?: () => void | Promise<void>;
+}
+/**
+ * Client Manager Configuration
+ * Declarative configuration pattern mirroring @cruxjs/app AppConfig
+ */
+interface ClientManagerConfig {
+    routes: Record<string, RouteComponent>;
+    notFoundComponent?: RouteComponent;
+    debug?: boolean;
+    lifecycle?: ClientManagerHooks;
+    plugins?: ClientPlugin[];
+    i18n?: I18nConfig;
 }
 
 declare class ClientManager {
@@ -25,6 +53,7 @@ declare class ClientManager {
     private lifecycle;
     private config;
     private hooks;
+    private plugins;
     private debug;
     private routeComponents;
     private currentPathSignal;
@@ -43,36 +72,14 @@ declare class ClientManager {
     /**
      * Ready the app - Phase 2: READY
      * Mount to DOM and make everything live
+     *
+     * Root selector is always 'body'.
      */
-    ready(mountSelector: string | HTMLElement): Promise<void>;
+    ready(): Promise<void>;
     /**
      * Shutdown the app - Phase 3: DESTROY
      */
     destroy(): Promise<void>;
-    /**
-     * Initializes internationalization (i18n) support
-     *
-     * Loads language files and configures the i18n system based on:
-     * - Default language
-     * - Supported languages
-     * - Base path for translation files
-     * - File extension (json, cjson, etc.)
-     *
-     * @param {AppConfig} config - Application configuration with i18n settings
-     * @param {Logger} logger - Logger instance for logging setup progress
-     * @returns {Promise<void>}
-     * @throws {Error} If i18n setup or language file loading fails
-     *
-     * @example
-     * await setupI18n({
-     *   i18n: {
-     *     defaultLanguage: 'en',
-     *     supportedLanguages: ['en', 'ar'],
-     *     basePath: './src/i18n'
-     *   }
-     * }, logger);
-     */
-    setupI18n(config: I18nConfig): Promise<void>;
     /**
      * Navigate to path
      */
@@ -132,13 +139,9 @@ declare class ClientManager {
     private log;
 }
 /**
- * Helper to safely get translation
- * Use this in components to access translations
- */
-declare function t(key: string, defaultValue?: string): string;
-/**
- * Get global ClientManager instance if available
+ * Get ClientManager instance if available
  */
 declare function getGlobalClientManager(): ClientManager | undefined;
+declare function start(config: ClientManagerConfig): Promise<ClientManager>;
 
-export { ClientManager, getGlobalClientManager, t };
+export { ClientManager, type ClientManagerConfig, type ClientManagerHooks, type ClientPlugin, type PluginContext, type RouteComponent, getGlobalClientManager, start };
