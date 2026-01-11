@@ -291,11 +291,11 @@
                             this.log('→ Root layout mounted');
 
                             // Find the page slot for rendering pages
-                            const pageSlot = container.querySelector('[data-page-slot]');
+                            const pageSlot = container.querySelector('#main-overlay');
                             if (pageSlot) {
                                 pageContainer = pageSlot as HTMLElement;
                             } else {
-                                console.warn('[ClientManager] Page slot [data-page-slot] not found in root layout. Pages will render to the root container.');
+                                console.warn('[ClientManager] Page slot #main-overlay not found in root layout. Pages will render to the root container.');
                             }
                         }
                     } catch (err) {

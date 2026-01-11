@@ -8,7 +8,7 @@
 </div>
 
 <div align="center">
-    <img src="https://img.shields.io/badge/v-0.1.1-black"/>
+    <img src="https://img.shields.io/badge/v-0.1.2-black"/>
     <a href="https://github.com/cruxjs-org"><img src="https://img.shields.io/badge/🔥-@cruxjs-black"/></a>
     <br>
     <img src="https://img.shields.io/badge/coverage-~%25-brightgreen" alt="Test Coverage" />
@@ -140,8 +140,8 @@
                             <h1>My App</h1>
                             <nav>{/* navigation */}</nav>
                         </header>
-                        <main data-page-slot></main>
-                        {/* Pages are rendered in [data-page-slot] */}
+                        <main id="main-overlay"></main>
+                        {/* Pages are rendered in #main-overlay */}
                         <footer class="app-footer">
                             <p>© 2026 My App</p>
                         </footer>
@@ -155,7 +155,7 @@
             };
             ```
 
-            > The `rootLayout` is rendered once and pages are mounted inside the element with `data-page-slot` attribute. This allows you to have persistent headers, footers, navigation, and modals that don't remount when routes change.
+            > The `rootLayout` is rendered once and pages are mounted inside the element with `#main-overlay` attribute. This allows you to have persistent headers, footers, navigation, and modals that don't remount when routes change.
 
         - #### Lifecycle Hooks
 
@@ -425,7 +425,7 @@
             return (
                 <div class="app-container">
                     <header>Header Content</header>
-                    <main data-page-slot></main>
+                    <main id="main-overlay"></main>
                     <footer>Footer Content</footer>
                 </div>
             );
@@ -589,7 +589,7 @@
 
             > Mount router to DOM element with optional root layout
             > Sets up reactive routing, mounts root layout if provided, and initial render
-            > Pages render inside `[data-page-slot]` if rootLayout exists, otherwise in the selector
+            > Pages render inside `#main-overlay` if rootLayout exists, otherwise in the selector
 
             ```typescript
             manager.mount('body');
@@ -857,7 +857,7 @@
             return (
                 <div>
                     <header>Persistent Header</header>
-                    <main data-page-slot></main>
+                    <main id="main-overlay"></main>
                     <footer>Persistent Footer</footer>
                 </div>
             );
@@ -865,7 +865,7 @@
 
         const config = {
             routes: { /* ... */ },
-            rootLayout: AppLayout,  // Pages render inside [data-page-slot]
+            rootLayout: AppLayout,  // Pages render inside #main-overlay
         };
 
         // ❌ DON'T: Create layout inside each page
