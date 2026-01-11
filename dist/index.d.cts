@@ -40,6 +40,7 @@ interface ClientManagerHooks {
 interface ClientManagerConfig {
     routes: Record<string, RouteComponent>;
     notFoundComponent?: RouteComponent;
+    rootLayout?: () => JSXElement | null;
     debug?: boolean;
     lifecycle?: ClientManagerHooks;
     plugins?: ClientPlugin[];
@@ -87,6 +88,7 @@ declare class ClientManager {
     /**
      * Mount router to DOM element and setup reactive routing
      * Automatically re-renders when route changes
+     * If rootLayout is provided, it wraps all pages
      */
     mount(selector: string | HTMLElement): void;
     /**

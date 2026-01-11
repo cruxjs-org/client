@@ -268,6 +268,7 @@
             /**
              * Mount router to DOM element and setup reactive routing
              * Automatically re-renders when route changes
+             * If rootLayout is provided, it wraps all pages
              */
             mount(selector: string | HTMLElement): void {
                 const container = typeof selector === 'string'
@@ -279,6 +280,20 @@
                     return;
                 }
 
+                // If rootLayout is provided, mount it first
+                if (this.config.rootLayout) {
+                    try {
+                        const layoutJsx = this.config.rootLayout();
+                        if (layoutJsx) {
+                            mountJSX(layoutJsx, container);
+                            this.log('→ Root layout mounted');
+                        }
+                    } catch (err) {
+                        console.error('[ClientManager] Error rendering root layout:', err);
+                        container.innerHTML = '<p>Error loading root layout</p>';
+                    }
+                }
+
                 // Setup reactive routing effect - re-renders when currentPathSignal changes
                 effect(() => {
                     const currentPath = this.currentPathSignal();
@@ -286,22 +301,32 @@
                         || this.config.notFoundComponent
                         || null;
 
-                    // Clear container
-                    container.innerHTML = '';
+                    // Determine where to render the page component
+                    // If rootLayout exists, find the page slot; otherwise use the main container
+                    let pageContainer = container;
+                    if (this.config.rootLayout) {
+                        const pageSlot = container.querySelector('[data-page-slot]');
+                        if (pageSlot) {
+                            pageContainer = pageSlot as HTMLElement;
+                        }
+                    }
+
+                    // Clear page container
+                    pageContainer.innerHTML = '';
 
                     if (Component) {
                         try {
                             const jsx = Component();
                             // Use @minejs/jsx mount function to properly render JSX
                             if (jsx) {
-                                mountJSX(jsx, container);
+                                mountJSX(jsx, pageContainer);
                             }
                         } catch (err) {
                             console.error('[ClientManager] Error rendering component:', currentPath, err);
-                            container.innerHTML = '<p>Error loading component</p>';
+                            pageContainer.innerHTML = '<p>Error loading component</p>';
                         }
                     } else {
-                        container.innerHTML = '<p>No component found for this route</p>';
+                        pageContainer.innerHTML = '<p>No component found for this route</p>';
                     }
 
                     this.log(`→ Route changed to: ${currentPath}`);

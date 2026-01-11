@@ -8,7 +8,7 @@
 </div>
 
 <div align="center">
-    <img src="https://img.shields.io/badge/v-0.0.9-black"/>
+    <img src="https://img.shields.io/badge/v-0.1.0-black"/>
     <a href="https://github.com/cruxjs-org"><img src="https://img.shields.io/badge/🔥-@cruxjs-black"/></a>
     <br>
     <img src="https://img.shields.io/badge/coverage-~%25-brightgreen" alt="Test Coverage" />
@@ -126,6 +126,36 @@
             ```tsx
             <a href="/about" onclick={handleClick}>About Us</a>
             ```
+
+        - #### Root Layout
+
+            ```typescript
+            import { JSXElement } from '@minejs/jsx';
+
+            // Create a root layout that wraps all pages
+            function AppLayout(): JSXElement {
+                return (
+                    <div class="app-wrapper">
+                        <header class="app-header">
+                            <h1>My App</h1>
+                            <nav>{/* navigation */}</nav>
+                        </header>
+                        <main data-page-slot></main>
+                        {/* Pages are rendered in [data-page-slot] */}
+                        <footer class="app-footer">
+                            <p>© 2026 My App</p>
+                        </footer>
+                    </div>
+                );
+            }
+
+            const config: ClientManagerConfig = {
+                routes: { /* ... */ },
+                rootLayout: AppLayout,  // Optional: wraps all pages
+            };
+            ```
+
+            > The `rootLayout` is rendered once and pages are mounted inside the element with `data-page-slot` attribute. This allows you to have persistent headers, footers, navigation, and modals that don't remount when routes change.
 
         - #### Lifecycle Hooks
 
@@ -385,9 +415,21 @@
         ```typescript
         // src/app/client.ts
         import { ClientManagerConfig, start } from '@cruxjs/client';
+        import { JSXElement } from '@minejs/jsx';
 
         import { HomePage } from './ui/pages/home';
         import { ErrorPage } from './ui/pages/error';
+
+        // Root layout wraps all pages
+        function AppLayout(): JSXElement {
+            return (
+                <div class="app-container">
+                    <header>Header Content</header>
+                    <main data-page-slot></main>
+                    <footer>Footer Content</footer>
+                </div>
+            );
+        }
 
         const config: ClientManagerConfig = {
             debug               : true,
@@ -397,6 +439,8 @@
             },
 
             notFoundComponent   : ErrorPage,
+
+            rootLayout          : AppLayout,  // Optional: wraps all pages
 
             lifecycle: {
                 onBoot          : () => {
@@ -491,6 +535,7 @@
         interface ClientManagerConfig {
             routes              : Record<string, RouteComponent>;
             notFoundComponent?  : RouteComponent;
+            rootLayout?         : () => JSXElement | null;
             debug?              : boolean;
             lifecycle?          : ClientManagerHooks;
             plugins?            : ClientPlugin[];
@@ -542,8 +587,9 @@
 
         - #### `mount(selector)`
 
-            > Mount router to DOM element
-            > Sets up reactive routing and initial render
+            > Mount router to DOM element with optional root layout
+            > Sets up reactive routing, mounts root layout if provided, and initial render
+            > Pages render inside `[data-page-slot]` if rootLayout exists, otherwise in the selector
 
             ```typescript
             manager.mount('body');
@@ -801,6 +847,36 @@
         // ❌ DON'T: Direct addEventListener
         button.addEventListener('click', handler);
         // Manual cleanup required
+        ```
+
+    - #### Root Layout
+
+        ```typescript
+        // ✅ DO: Use root layout for persistent UI
+        function AppLayout(): JSXElement {
+            return (
+                <div>
+                    <header>Persistent Header</header>
+                    <main data-page-slot></main>
+                    <footer>Persistent Footer</footer>
+                </div>
+            );
+        }
+
+        const config = {
+            routes: { /* ... */ },
+            rootLayout: AppLayout,  // Pages render inside [data-page-slot]
+        };
+
+        // ❌ DON'T: Create layout inside each page
+        export function HomePage(): JSXElement {
+            return (
+                <div>
+                    <header>Recreated on every navigation</header>
+                    <div>Page content</div>
+                </div>
+            );
+        }
         ```
 
     - #### Navigation

@@ -57,6 +57,10 @@
         // Optional fallback for 404 (if not in routes, must provide here)
         notFoundComponent?: RouteComponent;
 
+        // Root layout - App wraps all pages
+        // App creates the structure: loader, modal, and page slot
+        rootLayout?: () => JSXElement | null;
+
         // Debug mode
         debug?: boolean;
 
