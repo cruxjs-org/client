@@ -280,17 +280,28 @@
                     return;
                 }
 
-                // If rootLayout is provided, mount it first
+                let pageContainer = container;
+
+                // If rootLayout is provided, mount it first (only once)
                 if (this.config.rootLayout) {
                     try {
                         const layoutJsx = this.config.rootLayout();
                         if (layoutJsx) {
                             mountJSX(layoutJsx, container);
                             this.log('→ Root layout mounted');
+
+                            // Find the page slot for rendering pages
+                            const pageSlot = container.querySelector('[data-page-slot]');
+                            if (pageSlot) {
+                                pageContainer = pageSlot as HTMLElement;
+                            } else {
+                                console.warn('[ClientManager] Page slot [data-page-slot] not found in root layout. Pages will render to the root container.');
+                            }
                         }
                     } catch (err) {
                         console.error('[ClientManager] Error rendering root layout:', err);
                         container.innerHTML = '<p>Error loading root layout</p>';
+                        return;
                     }
                 }
 
@@ -301,17 +312,7 @@
                         || this.config.notFoundComponent
                         || null;
 
-                    // Determine where to render the page component
-                    // If rootLayout exists, find the page slot; otherwise use the main container
-                    let pageContainer = container;
-                    if (this.config.rootLayout) {
-                        const pageSlot = container.querySelector('[data-page-slot]');
-                        if (pageSlot) {
-                            pageContainer = pageSlot as HTMLElement;
-                        }
-                    }
-
-                    // Clear page container
+                    // Clear only the page container (not the entire root if layout exists)
                     pageContainer.innerHTML = '';
 
                     if (Component) {
