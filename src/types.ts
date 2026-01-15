@@ -17,6 +17,15 @@
 
     export type RouteComponent = () => JSXElement | null;
 
+    // Theme configuration
+    export interface ThemeConfig {
+        default: string;        // Default theme name
+        available: string[];    // Array of available theme names
+    }
+
+    // Language configuration
+    export type LangConfig = I18nConfig;
+
     /**
      * Client-side extension system
      * Extensions can hook into lifecycle phases to extend functionality
@@ -78,13 +87,5 @@
         // Theme configuration
         theme?: ThemeConfig;
     }
-
-    // Theme configuration
-    export interface ThemeConfig {
-        default: string;        // Default theme name
-        available: string[];    // Array of available theme names
-    }
-
-    export type LangConfig = I18nConfig;
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝

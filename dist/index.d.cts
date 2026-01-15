@@ -7,6 +7,11 @@ import * as _minejs_signals from '@minejs/signals';
 import { JSXElement } from '@minejs/jsx';
 
 type RouteComponent = () => JSXElement | null;
+interface ThemeConfig {
+    default: string;
+    available: string[];
+}
+type LangConfig = I18nConfig;
 /**
  * Client-side extension system
  * Extensions can hook into lifecycle phases to extend functionality
@@ -49,11 +54,6 @@ interface ClientManagerConfig {
     i18n?: I18nConfig;
     theme?: ThemeConfig;
 }
-interface ThemeConfig {
-    default: string;
-    available: string[];
-}
-type LangConfig = I18nConfig;
 
 declare class ClientManager {
     private router;
@@ -154,7 +154,10 @@ declare const back: () => void | undefined;
 declare const forward: () => void | undefined;
 declare const push: (path: string) => void | undefined;
 declare const replace: (path: string) => void | undefined;
+declare const getI18n: () => _minejs_i18n.I18nManager | undefined;
+declare const getLang: () => string | undefined;
+declare const setLang: (lang: string) => Promise<void> | undefined;
 
 declare function start(config: ClientManagerConfig): Promise<ClientManager>;
 
-export { CM, type ClientExtension, ClientManager, type ClientManagerConfig, type ClientManagerHooks, type ExtensionContext, type LangConfig, type RouteComponent, type ThemeConfig, back, forward, getRouter, push, replace, start };
+export { CM, type ClientExtension, ClientManager, type ClientManagerConfig, type ClientManagerHooks, type ExtensionContext, type LangConfig, type RouteComponent, type ThemeConfig, back, forward, getI18n, getLang, getRouter, push, replace, setLang, start };

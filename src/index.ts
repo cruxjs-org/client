@@ -9,7 +9,7 @@
 
     import * as types               from './types';
     import { signal,    effect  }   from '@minejs/signals';
-    import { setupI18n, getI18n }   from '@minejs/i18n';
+    import { setupI18n, getI18n as _getI18n }   from '@minejs/i18n';
     import { mount as mountJSX  }   from '@minejs/jsx';
     import { EventsManager, Router, WindowManager, createRouter } from '@minejs/browser';
 
@@ -412,7 +412,7 @@
              * Get i18n instance for translations
              */
             getI18n() {
-                return getI18n();
+                return _getI18n();
             }
 
             /**
@@ -476,10 +476,15 @@
     export const replace    = (path: string)    => getRouter()?.replace(path);
 
     // i18n
+    export const getI18n    = ()                => CM()?.getI18n();
+    export const getLang    = ()                => getI18n()?.getLanguage();
+    export const setLang    = (lang: string)    => getI18n()?.setLanguage(lang);
+
     export { t } from '@minejs/i18n';
 
     // Types
-    export * from './types';
+    export type * from './types';
+    // export { I18nConfig } from '@minejs/i18n';
 
     // Start
     export async function start(config: types.ClientManagerConfig): Promise<ClientManager> {
