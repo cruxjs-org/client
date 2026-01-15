@@ -8,22 +8,24 @@ import { JSXElement } from '@minejs/jsx';
 
 type RouteComponent = () => JSXElement | null;
 /**
- * Client-side plugin system
- * Plugins can hook into lifecycle phases to extend functionality
+ * Client-side extension system
+ * Extensions can hook into lifecycle phases to extend functionality
  * (logging, analytics, error handling, etc.)
  */
-interface ClientPlugin {
+interface ClientExtension {
     name: string;
-    onBoot?: (context: PluginContext) => void | Promise<void>;
-    onReady?: (context: PluginContext) => void | Promise<void>;
-    onDestroy?: (context: PluginContext) => void | Promise<void>;
+    config?: Record<string, unknown>;
+    onBoot?: (context: ExtensionContext) => void | Promise<void>;
+    onReady?: (context: ExtensionContext) => void | Promise<void>;
+    onDestroy?: (context: ExtensionContext) => void | Promise<void>;
 }
 /**
- * Context passed to plugin lifecycle hooks
+ * Context passed to extension lifecycle hooks
  */
-interface PluginContext {
+interface ExtensionContext {
     debug: boolean;
-    config: ClientManagerConfig;
+    config: Record<string, unknown>;
+    cconfig: ClientManagerConfig;
 }
 /**
  * Lifecycle hooks for the client application
@@ -43,8 +45,13 @@ interface ClientManagerConfig {
     rootLayout?: () => JSXElement | null;
     debug?: boolean;
     lifecycle?: ClientManagerHooks;
-    plugins?: ClientPlugin[];
+    extensions?: ClientExtension[];
     i18n?: I18nConfig;
+    theme?: ThemeConfig;
+}
+interface ThemeConfig {
+    default: string;
+    available: string[];
 }
 
 declare class ClientManager {
@@ -54,7 +61,7 @@ declare class ClientManager {
     private lifecycle;
     private config;
     private hooks;
-    private plugins;
+    private extensions;
     private debug;
     private routeComponents;
     private currentPathSignal;
@@ -140,10 +147,13 @@ declare class ClientManager {
      */
     private log;
 }
-/**
- * Get ClientManager instance if available
- */
-declare function getGlobalClientManager(): ClientManager | undefined;
+declare const CM: () => ClientManager | undefined;
+declare const getRouter: () => Router | undefined;
+declare const back: () => void | undefined;
+declare const forward: () => void | undefined;
+declare const push: (path: string) => void | undefined;
+declare const replace: (path: string) => void | undefined;
+
 declare function start(config: ClientManagerConfig): Promise<ClientManager>;
 
-export { ClientManager, type ClientManagerConfig, type ClientManagerHooks, type ClientPlugin, type PluginContext, type RouteComponent, getGlobalClientManager, start };
+export { CM, type ClientExtension, ClientManager, type ClientManagerConfig, type ClientManagerHooks, type ExtensionContext, type RouteComponent, type ThemeConfig, back, forward, getRouter, push, replace, start };

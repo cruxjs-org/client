@@ -8,7 +8,7 @@
 </div>
 
 <div align="center">
-    <img src="https://img.shields.io/badge/v-0.1.2-black"/>
+    <img src="https://img.shields.io/badge/v-0.1.3-black"/>
     <a href="https://github.com/cruxjs-org"><img src="https://img.shields.io/badge/🔥-@cruxjs-black"/></a>
     <br>
     <img src="https://img.shields.io/badge/coverage-~%25-brightgreen" alt="Test Coverage" />
@@ -156,6 +156,15 @@
             ```
 
             > The `rootLayout` is rendered once and pages are mounted inside the element with `#main-overlay` attribute. This allows you to have persistent headers, footers, navigation, and modals that don't remount when routes change.
+
+        - #### Loader kit
+
+            ```typescript
+            const manager = getGlobalClientManager();
+            manager.showLoader();               // shows 'Loading...'
+            manager.showLoader('Saving...');    // update message
+            manager.hideLoader();               // hides with fade-out
+            ```
 
         - #### Lifecycle Hooks
 

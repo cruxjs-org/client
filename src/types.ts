@@ -18,23 +18,25 @@
     export type RouteComponent = () => JSXElement | null;
 
     /**
-     * Client-side plugin system
-     * Plugins can hook into lifecycle phases to extend functionality
+     * Client-side extension system
+     * Extensions can hook into lifecycle phases to extend functionality
      * (logging, analytics, error handling, etc.)
      */
-    export interface ClientPlugin {
+    export interface ClientExtension {
         name: string;
-        onBoot?: (context: PluginContext) => void | Promise<void>;
-        onReady?: (context: PluginContext) => void | Promise<void>;
-        onDestroy?: (context: PluginContext) => void | Promise<void>;
+        config?: Record<string, unknown>;
+        onBoot?: (context: ExtensionContext) => void | Promise<void>;
+        onReady?: (context: ExtensionContext) => void | Promise<void>;
+        onDestroy?: (context: ExtensionContext) => void | Promise<void>;
     }
 
     /**
-     * Context passed to plugin lifecycle hooks
+     * Context passed to extension lifecycle hooks
      */
-    export interface PluginContext {
-        debug: boolean;
-        config: ClientManagerConfig;
+    export interface ExtensionContext {
+        debug   : boolean;
+        config  : Record<string, unknown>;
+        cconfig : ClientManagerConfig;
     }
 
     /**
@@ -67,11 +69,20 @@
         // Lifecycle hooks - called at specific phases
         lifecycle?: ClientManagerHooks;
 
-        // Client-side plugins for extending functionality
-        plugins?: ClientPlugin[];
+        // Client-side extensions for extending functionality
+        extensions?: ClientExtension[];
 
         // i18n configuration (AUTO-INJECTED)
         i18n?: I18nConfig;
+
+        // Theme configuration
+        theme?: ThemeConfig;
+    }
+
+    // Theme configuration
+    export interface ThemeConfig {
+        default: string;        // Default theme name
+        available: string[];    // Array of available theme names
     }
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝

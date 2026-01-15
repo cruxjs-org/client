@@ -31,7 +31,7 @@
             private lifecycle           : 'booting' | 'ready' | 'destroying' | 'destroyed' = 'booting';
             private config              : types.ClientManagerConfig;
             private hooks               : types.ClientManagerHooks = {};
-            private plugins             : types.ClientPlugin[] = [];
+            private extensions          : types.ClientExtension[] = [];
             private debug               : boolean;
             private routeComponents     : Record<string, types.RouteComponent> = {};
             private currentPathSignal   = signal<string>(window.location.pathname ?? '/');
@@ -47,8 +47,8 @@
                     this.hooks = { ...config.lifecycle };
                 }
 
-                // Store plugins from config
-                this.plugins = config.plugins ?? [];
+                // Store extensions from config
+                this.extensions = config.extensions ?? [];
 
                 // Store route components provided by user
                 this.routeComponents = config.routes;
@@ -135,13 +135,14 @@
                 this.log('⚡ Phase: BOOT');
 
                 try {
-                    // Call plugins onBoot hooks
-                    for (const plugin of this.plugins) {
-                        if (plugin.onBoot) {
-                            this.log(`→ Plugin onBoot: ${plugin.name}`);
-                            await plugin.onBoot({
+                    // Call extensions onBoot hooks
+                    for (const extension of this.extensions) {
+                        if (extension.onBoot) {
+                            this.log(`→ Extension onBoot: ${extension.name}`);
+                            await extension.onBoot({
                                 debug: this.debug,
-                                config: this.config
+                                config: {},
+                                cconfig: this.config
                             });
                         }
                     }
@@ -184,13 +185,14 @@
 
                     this.log('→ Router mounted');
 
-                    // Call plugins onReady hooks
-                    for (const plugin of this.plugins) {
-                        if (plugin.onReady) {
-                            this.log(`→ Plugin onReady: ${plugin.name}`);
-                            await plugin.onReady({
+                    // Call extensions onReady hooks
+                    for (const extension of this.extensions) {
+                        if (extension.onReady) {
+                            this.log(`→ Extension onReady: ${extension.name}`);
+                            await extension.onReady({
                                 debug: this.debug,
-                                config: this.config
+                                config: {},
+                                cconfig: this.config
                             });
                         }
                     }
@@ -223,14 +225,15 @@
                 this.log('⚡ Phase: DESTROY');
 
                 try {
-                    // Call plugins onDestroy hooks (in reverse order)
-                    for (let i = this.plugins.length - 1; i >= 0; i--) {
-                        const plugin = this.plugins[i];
-                        if (plugin.onDestroy) {
-                            this.log(`→ Plugin onDestroy: ${plugin.name}`);
-                            await plugin.onDestroy({
+                    // Call extensions onDestroy hooks (in reverse order)
+                    for (let i = this.extensions.length - 1; i >= 0; i--) {
+                        const extension = this.extensions[i];
+                        if (extension.onDestroy) {
+                            this.log(`→ Extension onDestroy: ${extension.name}`);
+                            await extension.onDestroy({
                                 debug: this.debug,
-                                config: this.config
+                                config: {},
+                                cconfig: this.config
                             });
                         }
                     }
@@ -462,13 +465,23 @@
 
 // ╔════════════════════════════════════════ ════ ════════════════════════════════════════╗
 
-    /**
-     * Get ClientManager instance if available
-     */
-    export function getGlobalClientManager(): ClientManager | undefined {
-        return globalClientManagerInstance;
-    }
+    // Quick access
+    export const CM         = (): ClientManager | undefined => globalClientManagerInstance;
 
+    // Router
+    export const getRouter  = ()                => CM()?.getRouter();
+    export const back       = ()                => getRouter()?.back();
+    export const forward    = ()                => getRouter()?.forward();
+    export const push       = (path: string)    => getRouter()?.push(path);
+    export const replace    = (path: string)    => getRouter()?.replace(path);
+
+    // i18n
+    export { t } from '@minejs/i18n';
+
+    // Types
+    export * from './types';
+
+    // Start
     export async function start(config: types.ClientManagerConfig): Promise<ClientManager> {
         // Read i18n config from HTML meta tag (injected by server)
         const metaI18n = document.querySelector('meta[name="app-i18n"]');
@@ -499,14 +512,5 @@
 
         return manager;
     }
-
-// ╚══════════════════════════════════════════════════════════════════════════════════════╝
-
-
-
-// ╔════════════════════════════════════════ ════ ════════════════════════════════════════╗
-
-    export * from './types';
-    export { t } from '@minejs/i18n';
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
