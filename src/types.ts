@@ -85,4 +85,6 @@
         available: string[];    // Array of available theme names
     }
 
+    export type LangConfig = I18nConfig;
+
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝

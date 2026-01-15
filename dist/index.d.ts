@@ -53,6 +53,7 @@ interface ThemeConfig {
     default: string;
     available: string[];
 }
+type LangConfig = I18nConfig;
 
 declare class ClientManager {
     private router;
@@ -156,4 +157,4 @@ declare const replace: (path: string) => void | undefined;
 
 declare function start(config: ClientManagerConfig): Promise<ClientManager>;
 
-export { CM, type ClientExtension, ClientManager, type ClientManagerConfig, type ClientManagerHooks, type ExtensionContext, type RouteComponent, type ThemeConfig, back, forward, getRouter, push, replace, start };
+export { CM, type ClientExtension, ClientManager, type ClientManagerConfig, type ClientManagerHooks, type ExtensionContext, type LangConfig, type RouteComponent, type ThemeConfig, back, forward, getRouter, push, replace, start };
