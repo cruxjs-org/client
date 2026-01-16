@@ -1,59 +1,10 @@
+import { ClientManagerConfig, ClientManagerHooks } from '@cruxjs/base';
+export { ClientExtension, ClientManagerConfig, ClientManagerHooks, ExtensionContext, LangConfig, RouteComponent, ThemeConfig } from '@cruxjs/base';
 import * as _minejs_i18n from '@minejs/i18n';
-import { I18nConfig } from '@minejs/i18n';
 export { t } from '@minejs/i18n';
 import * as _minejs_browser from '@minejs/browser';
 import { Router, EventsManager, WindowManager } from '@minejs/browser';
 import * as _minejs_signals from '@minejs/signals';
-import { JSXElement } from '@minejs/jsx';
-
-type RouteComponent = () => JSXElement | null;
-interface ThemeConfig {
-    default: string;
-    available: string[];
-}
-type LangConfig = I18nConfig;
-/**
- * Client-side extension system
- * Extensions can hook into lifecycle phases to extend functionality
- * (logging, analytics, error handling, etc.)
- */
-interface ClientExtension {
-    name: string;
-    config?: Record<string, unknown>;
-    onBoot?: (context: ExtensionContext) => void | Promise<void>;
-    onReady?: (context: ExtensionContext) => void | Promise<void>;
-    onDestroy?: (context: ExtensionContext) => void | Promise<void>;
-}
-/**
- * Context passed to extension lifecycle hooks
- */
-interface ExtensionContext {
-    debug: boolean;
-    config: Record<string, unknown>;
-    cconfig: ClientManagerConfig;
-}
-/**
- * Lifecycle hooks for the client application
- */
-interface ClientManagerHooks {
-    onBoot?: () => void | Promise<void>;
-    onReady?: () => void | Promise<void>;
-    onDestroy?: () => void | Promise<void>;
-}
-/**
- * Client Manager Configuration
- * Declarative configuration pattern mirroring @cruxjs/app AppConfig
- */
-interface ClientManagerConfig {
-    routes: Record<string, RouteComponent>;
-    notFoundComponent?: RouteComponent;
-    rootLayout?: () => JSXElement | null;
-    debug?: boolean;
-    lifecycle?: ClientManagerHooks;
-    extensions?: ClientExtension[];
-    i18n?: I18nConfig;
-    theme?: ThemeConfig;
-}
 
 declare class ClientManager {
     private router;
@@ -160,4 +111,4 @@ declare const setLang: (lang: string) => Promise<void> | undefined;
 
 declare function start(config: ClientManagerConfig): Promise<ClientManager>;
 
-export { CM, type ClientExtension, ClientManager, type ClientManagerConfig, type ClientManagerHooks, type ExtensionContext, type LangConfig, type RouteComponent, type ThemeConfig, back, forward, getI18n, getLang, getRouter, push, replace, setLang, start };
+export { CM, ClientManager, back, forward, getI18n, getLang, getRouter, push, replace, setLang, start };
