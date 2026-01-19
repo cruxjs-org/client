@@ -1,7 +1,5 @@
 import { ClientManagerConfig, ClientManagerHooks } from '@cruxjs/base';
 export { ClientExtension, ClientManagerConfig, ClientManagerHooks, ExtensionContext, LangConfig, RouteComponent, ThemeConfig } from '@cruxjs/base';
-import * as _minejs_i18n from '@minejs/i18n';
-export { t } from '@minejs/i18n';
 import * as _minejs_browser from '@minejs/browser';
 import { Router, EventsManager, WindowManager } from '@minejs/browser';
 import * as _minejs_signals from '@minejs/signals';
@@ -81,11 +79,11 @@ declare class ClientManager {
     /**
      * Get i18n instance for translations
      */
-    getI18n(): _minejs_i18n.I18nManager;
+    getI18n(): any;
     /**
      * Get translation string
      */
-    t(key: string, defaultValue?: string): string;
+    t(key: string, params?: any, defaultValue?: string): any;
     /**
      * Get lifecycle phase
      */
@@ -105,10 +103,12 @@ declare const back: () => void | undefined;
 declare const forward: () => void | undefined;
 declare const push: (path: string) => void | undefined;
 declare const replace: (path: string) => void | undefined;
-declare const getI18n: () => _minejs_i18n.I18nManager | undefined;
-declare const getLang: () => string | undefined;
-declare const setLang: (lang: string) => Promise<void> | undefined;
+declare const getI18n: () => any;
+declare const getLang: () => any;
+declare const setLang: (lang: string) => any;
+declare const t: (key: string, params?: any, defaultValue?: string) => any;
+declare const tLang: (lang: string, key: string, params?: any, defaultValue?: string) => any;
 
 declare function start(config: ClientManagerConfig): Promise<ClientManager>;
 
-export { CM, ClientManager, back, forward, getI18n, getLang, getRouter, push, replace, setLang, start };
+export { CM, ClientManager, back, forward, getI18n, getLang, getRouter, push, replace, setLang, start, t, tLang };

@@ -1,6 +1,6 @@
 {
 	"name"                             : "@cruxjs/client",
-	"version"                          : "0.2.1",
+	"version"                          : "0.2.2",
 	"description"                      : "Client application manager with routing, lifecycle hooks, and plugin-based extensibility.",
 	"keywords"                         : ["cruxjs", "client"],
 	"license"                          : "MIT",

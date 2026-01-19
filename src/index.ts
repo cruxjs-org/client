@@ -18,7 +18,6 @@
 
     export *        from './types';
     export *        from './mod/client_manager';
-    export { t }    from '@minejs/i18n';
 
     // Start
     export async function start(config: ClientManagerConfig): Promise<ClientManager> {
@@ -33,7 +32,8 @@
         const manager = new ClientManager(config);
 
         // Phase 0: Setup I18N
-        await setupI18n(config.i18n || {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).__i18n = await setupI18n(config.i18n || {
             defaultLanguage: 'en',
             supportedLanguages: ['en'],
         });

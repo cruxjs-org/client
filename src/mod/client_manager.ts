@@ -7,10 +7,9 @@
 
 // ╔════════════════════════════════════════ PACK ════════════════════════════════════════╗
 
-    import * as types               from '../types';
-    import { signal,    effect  }   from '@minejs/signals';
-    import { getI18n as _getI18n }   from '@minejs/i18n';
-    import { mount as mountJSX  }   from '@minejs/jsx';
+    import * as types                   from '../types';
+    import { signal, effect  }          from '@minejs/signals';
+    import { mount as mountJSX  }       from '@minejs/jsx';
     import { EventsManager, Router, WindowManager, createRouter } from '@minejs/browser';
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
@@ -412,19 +411,18 @@
              * Get i18n instance for translations
              */
             getI18n() {
-                return _getI18n();
+                return (window as any).__i18n;
             }
 
             /**
              * Get translation string
              */
-            t(key: string, defaultValue?: string) {
-                const i18n = getI18n();
-                if (!i18n) {
+            t(key: string, params?: any, defaultValue?: string) {
+                if (!(window as any).__i18n) {
                     console.warn('[ClientManager] i18n not initialized. Using default value or key.');
                     return defaultValue ?? key;
                 }
-                return i18n.t(key) ?? defaultValue ?? key;
+                return (window as any).__i18n.t(key, params) ?? defaultValue ?? key;
             }
 
         // └────────────────────────────────────────────────────────────────────┘
@@ -479,5 +477,7 @@
     export const getI18n    = ()                => CM()?.getI18n();
     export const getLang    = ()                => getI18n()?.getLanguage();
     export const setLang    = (lang: string)    => getI18n()?.setLanguage(lang);
+    export const t          = (key: string, params?: any, defaultValue?: string) => CM()?.t(key, params, defaultValue);
+    export const tLang      = (lang: string, key: string, params?: any, defaultValue?: string) => getI18n()?.tLang(lang, key, params, defaultValue) ?? (defaultValue ?? key);
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
