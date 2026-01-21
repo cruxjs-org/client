@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/mpd/client_manager.ts
+// src/mod/manager.ts
 //
 // Made with ❤️ by Maysara.
 
@@ -10,7 +10,8 @@
     import * as types                   from '../types';
     import { signal, effect  }          from '@minejs/signals';
     import { mount as mountJSX  }       from '@minejs/jsx';
-    import { EventsManager, Router, WindowManager, createRouter } from '@minejs/browser';
+    import { EventsManager, WindowManager } from '@minejs/browser';
+    import { Router, createRouter } from './router';
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
 
@@ -337,7 +338,7 @@
                 });
 
                 // Trigger initial render by pushing the current path
-                this.router.push(this.currentPathSignal());
+                // this.router.push(this.currentPathSignal());
                 this.log('→ Routing setup complete');
             }
 

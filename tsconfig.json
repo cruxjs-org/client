@@ -1,5 +1,5 @@
 {
-	"include"                                  : ["src/**/*", "index copy.ts", "src/libs"],
+	"include"                                  : ["src/**/*"],
 	"exclude"                                  : ["node_modules", "dist"],
 	"compilerOptions": {
 		"target"                               : "ES2020",

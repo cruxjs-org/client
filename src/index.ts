@@ -7,7 +7,7 @@
 // ╔════════════════════════════════════════ PACK ════════════════════════════════════════╗
 
     import { ClientManagerConfig }  from './types';
-    import { ClientManager }        from './mod/client_manager';
+    import { ClientManager }        from './mod/manager';
     import { setupI18n }            from '@minejs/i18n';
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
@@ -17,7 +17,7 @@
 // ╔════════════════════════════════════════ MAIN ════════════════════════════════════════╗
 
     export *        from './types';
-    export *        from './mod/client_manager';
+    export *        from './mod/manager';
 
     // Start
     export async function start(config: ClientManagerConfig): Promise<ClientManager> {
