@@ -65,6 +65,7 @@
                 this.router = createRouter({
                     routes: routesArray,
                     notFoundComponent: config.notFoundComponent,
+                    allowedQueryParams: config.allowedQueryParams
                 });
 
                 // Connect router changes to signal for automatic re-rendering
