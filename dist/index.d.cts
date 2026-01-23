@@ -129,9 +129,13 @@ declare class Router {
      */
     addAllowedQueryParam(param: string | RegExp): void;
     /**
+     * Visit an external link
+     */
+    visit(url: string, blank?: boolean): void;
+    /**
      * Reload current route
      */
-    reload(): Promise<void>;
+    reload(_window?: boolean): Promise<void>;
     /**
      * Destroy router and cleanup
      */
@@ -237,12 +241,14 @@ declare const back: () => void | undefined;
 declare const forward: () => void | undefined;
 declare const push: (path: string) => void | undefined;
 declare const replace: (path: string) => void | undefined;
+declare const reload: (_window?: boolean) => Promise<void> | undefined;
+declare const visit: (url: string, blank?: boolean) => void | undefined;
 declare const getI18n: () => any;
 declare const getLang: () => any;
-declare const setLang: (lang: string) => any;
+declare const setLang: (lang: string, _setLang?: boolean, _setDir?: boolean, _setCookie?: boolean) => any;
 declare const t: (key: string, params?: any, defaultValue?: string) => any;
 declare const tLang: (lang: string, key: string, params?: any, defaultValue?: string) => any;
 
 declare function start(config: ClientManagerConfig): Promise<ClientManager>;
 
-export { type ActionFunction, CM, ClientManager, type LoaderFunction, type NavigateOptions, NavigationError, type Route, type RouteContext, type RouteMatch, type RouteParams, type RouterConfig, back, forward, getI18n, getLang, getRouter, push, replace, setLang, start, t, tLang };
+export { type ActionFunction, CM, ClientManager, type LoaderFunction, type NavigateOptions, NavigationError, type Route, type RouteContext, type RouteMatch, type RouteParams, type RouterConfig, back, forward, getI18n, getLang, getRouter, push, reload, replace, setLang, start, t, tLang, visit };

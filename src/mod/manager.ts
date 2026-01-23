@@ -474,11 +474,13 @@
     export const forward    = ()                => getRouter()?.forward();
     export const push       = (path: string)    => getRouter()?.push(path);
     export const replace    = (path: string)    => getRouter()?.replace(path);
+    export const reload     = (_window=true)    => getRouter()?.reload(_window);
+    export const visit      = (url: string, blank?: boolean) => getRouter()?.visit(url, blank);
 
     // i18n
     export const getI18n    = ()                => CM()?.getI18n();
     export const getLang    = ()                => getI18n()?.getLanguage();
-    export const setLang    = (lang: string)    => getI18n()?.setLanguage(lang);
+    export const setLang    = (lang: string, _setLang=true, _setDir=true, _setCookie=true) => getI18n()?.setLanguage(lang, _setLang, _setDir, _setCookie);
     export const t          = (key: string, params?: any, defaultValue?: string) => CM()?.t(key, params, defaultValue);
     export const tLang      = (lang: string, key: string, params?: any, defaultValue?: string) => getI18n()?.tLang(lang, key, params, defaultValue) ?? (defaultValue ?? key);
 

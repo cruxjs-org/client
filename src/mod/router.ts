@@ -536,9 +536,25 @@
         }
 
         /**
+         * Visit an external link
+         */
+        public visit(url: string, blank?: boolean): void {
+            if (blank ?? true) {
+                window.open(url, '_blank');
+            } else {
+                window.location.href = url;
+            }
+        }
+
+        /**
          * Reload current route
          */
-        public async reload(): Promise<void> {
+        public async reload(_window= false): Promise<void> {
+            if (_window) {
+                window.location.reload();
+                return;
+            }
+
             const current = this.currentRoute();
             if (current) {
                 const queryString = current.query.toString();
@@ -605,7 +621,8 @@
             replace: (path: string, options?: types.NavigateOptions) => router.replace(path, options),
             back: () => router.back(),
             forward: () => router.forward(),
-            go: (delta: number) => router.go(delta)
+            go: (delta: number) => router.go(delta),
+            visit: (url: string, blank?: boolean) => router.visit(url, blank)
         };
     }
 
