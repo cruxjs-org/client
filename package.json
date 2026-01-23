@@ -1,6 +1,6 @@
 {
 	"name"                             : "@cruxjs/client",
-	"version"                          : "0.3.3",
+	"version"                          : "0.3.4",
 	"description"                      : "Client application manager with routing, lifecycle hooks, and plugin-based extensibility.",
 	"keywords"                         : ["cruxjs", "client"],
 	"license"                          : "MIT",
@@ -44,7 +44,7 @@
 		"@cruxkit/core"                : "^0.0.2",
 		"@minejs/browser"              : "^0.0.5",
 		"@minejs/i18n"                 : "^0.1.8",
-		"@minejs/jsx"                  : "^0.1.5",
+		"@minejs/jsx"                  : "^0.1.6",
 		"@minejs/signals"              : "^0.0.6",
 		"@minejs/store"                : "^0.0.3"
 	},
