@@ -5,7 +5,7 @@
 	"repo": {
 		"org"           : "cruxjs",
 		"name"          : "client",
-		"version"       : "0.3.8",
+		"version"       : "0.3.9",
 		"desc"          : "Client application manager with routing, lifecycle hooks, and plugin-based extensibility.",
 		"kw"            : ["cruxjs", "client"],
 		"license"       : "MIT",
